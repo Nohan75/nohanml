@@ -1,0 +1,33 @@
+<section class="hero container">
+  <h1 class="hero__title">
+    Salut, je suis <span class="hero__title--accent">Nohan</span> 👋
+  </h1>
+  <p class="hero__subtitle">
+    Développeur fullstack passionné par Angular & NestJS.
+    Je construis des applications web modernes, performantes et accessibles.
+  </p>
+  <div class="hero__cta">
+    <a routerLink="/projects" class="btn btn--primary">Voir mes projets</a>
+    <a routerLink="/contact" class="btn btn--outline">Me contacter</a>
+  </div>
+</section>
+
+<section class="latest container">
+  <h2 class="latest__title">Derniers projets</h2>
+
+  @if (store.loading()) {
+    <p class="loading" aria-live="polite">Chargement...</p>
+  } @else if (store.error()) {
+    <p class="error" role="alert">{{ store.error() }}</p>
+  } @else {
+    <div class="latest__grid">
+      @for (project of store.latestProjects(); track project.id) {
+        <app-project-card [project]="project" />
+      }
+    </div>
+  }
+
+  <div class="latest__more">
+    <a routerLink="/projects" class="btn btn--outline">Tous les projets →</a>
+  </div>
+</section>

@@ -1,0 +1,61 @@
+.about {
+  padding: 4rem 1.5rem;
+  max-width: 800px;
+
+  &__title {
+    font-size: 2rem;
+    font-weight: 800;
+    margin-bottom: 1.5rem;
+  }
+
+  &__text {
+    color: var(--color-text-muted);
+    line-height: 1.8;
+    margin-bottom: 1rem;
+
+    strong {
+      color: var(--color-text);
+    }
+  }
+
+  &__skills {
+    margin-top: 3rem;
+  }
+
+  &__skills-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 1.5rem;
+  }
+
+  &__categories {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  &__category-name {
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--color-primary);
+    margin-bottom: 0.75rem;
+  }
+
+  &__skill-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    list-style: none;
+  }
+
+  &__skill-tag {
+    padding: 0.3rem 0.8rem;
+    background-color: var(--color-bg-surface);
+    border: 1px solid var(--color-border);
+    border-radius: 999px;
+    font-size: 0.85rem;
+    color: var(--color-text-muted);
+  }
+}

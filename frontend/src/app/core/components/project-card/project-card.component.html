@@ -1,0 +1,48 @@
+<article class="card" aria-label="Projet : {{ project().title }}">
+  @if (project().imageUrl) {
+    <div class="card__image">
+      <img
+        [ngSrc]="project().imageUrl!"
+        [alt]="project().title"
+        width="400"
+        height="225"
+      />
+    </div>
+  }
+
+  <div class="card__body">
+    <h3 class="card__title">{{ project().title }}</h3>
+    <p class="card__description">{{ project().description }}</p>
+
+    <ul class="card__stack" role="list" aria-label="Technologies utilisées">
+      @for (tech of project().stack; track tech) {
+        <li class="card__tag">{{ tech }}</li>
+      }
+    </ul>
+
+    <div class="card__links">
+      @if (project().githubUrl) {
+        <a
+          [href]="project().githubUrl"
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label="Voir le code source de {{ project().title }} sur GitHub"
+          class="card__link"
+        >
+          GitHub
+        </a>
+      }
+      @if (project().liveUrl) {
+        <a
+          [href]="project().liveUrl"
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label="Voir la démo de {{ project().title }}"
+          class="card__link card__link--primary"
+        >
+          Démo
+        </a>
+      }
+    </div>
+  </div>
+</article>

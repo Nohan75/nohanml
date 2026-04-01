@@ -1,0 +1,37 @@
+<nav class="navbar" role="navigation" aria-label="Navigation principale">
+  <div class="container navbar__inner">
+    <a routerLink="/" class="navbar__brand" aria-label="Accueil">
+      nohan<span class="navbar__brand--accent">ml</span>
+    </a>
+
+    <ul class="navbar__links" role="list">
+      <li>
+        <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
+          Accueil
+        </a>
+      </li>
+      <li>
+        <a routerLink="/projects" routerLinkActive="active">Projets</a>
+      </li>
+      <li>
+        <a routerLink="/about" routerLinkActive="active">À propos</a>
+      </li>
+      <li>
+        <a routerLink="/contact" routerLinkActive="active">Contact</a>
+      </li>
+    </ul>
+
+    <button
+      class="navbar__theme-btn"
+      (click)="themeService.toggle()"
+      [attr.aria-label]="themeService.theme() === 'dark' ? 'Passer en mode clair' : 'Passer en mode sombre'"
+      type="button"
+    >
+      @if (themeService.theme() === 'dark') {
+        ☀️
+      } @else {
+        🌙
+      }
+    </button>
+  </div>
+</nav>

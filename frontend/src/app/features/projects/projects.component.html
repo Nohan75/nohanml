@@ -1,0 +1,20 @@
+<section class="projects container">
+  <h1 class="projects__title">Mes projets</h1>
+  <p class="projects__subtitle">
+    Une sélection de mes réalisations personnelles et professionnelles.
+  </p>
+
+  @if (store.loading()) {
+    <p class="loading" aria-live="polite">Chargement des projets...</p>
+  } @else if (store.error()) {
+    <p class="error" role="alert">{{ store.error() }}</p>
+  } @else if (store.projects().length === 0) {
+    <p class="empty">Aucun projet pour l'instant.</p>
+  } @else {
+    <div class="projects__grid">
+      @for (project of store.projects(); track project.id) {
+        <app-project-card [project]="project" />
+      }
+    </div>
+  }
+</section>
