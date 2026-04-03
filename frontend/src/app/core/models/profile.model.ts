@@ -7,4 +7,6 @@ export interface Profile {
   location: string;
   available: boolean;
   cvUrl: string | null;
+  linkedinUrl: string | null;
+  githubUrl: string | null;
 }

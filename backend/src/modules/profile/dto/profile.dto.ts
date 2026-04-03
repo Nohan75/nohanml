@@ -44,6 +44,16 @@ export class CreateProfileDto {
   @IsOptional()
   @IsUrl()
   cvUrl?: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsUrl()
+  linkedinUrl?: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsUrl()
+  githubUrl?: string;
 }
 
 export class UpdateProfileDto extends PartialType(CreateProfileDto) {}

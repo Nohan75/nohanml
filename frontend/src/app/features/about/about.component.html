@@ -25,17 +25,41 @@
         </li>
       </ul>
 
-      @if (profile.cvUrl) {
-        <a
-          [href]="profile.cvUrl"
-          target="_blank"
-          rel="noopener noreferrer"
-          class="about__cv-btn"
-          aria-label="Télécharger mon CV"
-        >
-          ⬇️ Télécharger mon CV
-        </a>
-      }
+      <div class="about__social">
+        @if (profile.linkedinUrl) {
+          <a
+            [href]="profile.linkedinUrl"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="about__social-link"
+            aria-label="Mon profil LinkedIn"
+          >
+            LinkedIn
+          </a>
+        }
+        @if (profile.githubUrl) {
+          <a
+            [href]="profile.githubUrl"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="about__social-link"
+            aria-label="Mon profil GitHub"
+          >
+            GitHub
+          </a>
+        }
+        @if (profile.cvUrl) {
+          <a
+            [href]="profile.cvUrl"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="about__social-link about__social-link--primary"
+            aria-label="Télécharger mon CV"
+          >
+            ⬇️ CV
+          </a>
+        }
+      </div>
     }
   </div>
 

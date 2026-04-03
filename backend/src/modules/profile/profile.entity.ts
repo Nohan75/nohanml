@@ -28,4 +28,11 @@ export class Profile {
 
   @Column({ type: 'varchar', nullable: true })
   cvUrl: string | null;
+
+  // Réseaux sociaux
+  @Column({ type: 'varchar', nullable: true })
+  linkedinUrl: string | null;
+
+  @Column({ type: 'varchar', nullable: true })
+  githubUrl: string | null;
 }
