@@ -14,7 +14,7 @@ import { Skill } from '../../../core/models/skill.model';
 })
 export class AdminSkillsComponent implements OnInit {
   private fb = inject(FormBuilder);
-  private store = inject(SkillsStore);
+  store = inject(SkillsStore);
   private service = inject(SkillsService);
 
   skills = this.store.skills;
@@ -39,9 +39,14 @@ export class AdminSkillsComponent implements OnInit {
     this.saving.set(true);
     const raw = this.form.getRawValue();
     const current = this.editing();
+    const payload: Partial<Skill> = {
+      name:     raw.name     ?? undefined,
+      category: raw.category ?? undefined,
+      order:    raw.order    ?? undefined,
+    };
     const req$ = current?.id
-      ? this.service.update(current.id, raw)
-      : this.service.create(raw);
+      ? this.service.update(current.id, payload)
+      : this.service.create(payload);
 
     req$.subscribe({
       next: () => { this.saving.set(false); this.cancelEdit(); this.store.loadSkills(); },

@@ -2,6 +2,7 @@ import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@ang
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ProfileService } from '../../../core/services/profile.service';
 import { ProfileStore } from '../../../store/profile.store';
+import { Profile } from '../../../core/models/profile.model';
 
 @Component({
   selector: 'app-admin-profile',
@@ -46,8 +47,19 @@ export class AdminProfileComponent implements OnInit {
     this.error.set(null);
 
     const raw = this.form.getRawValue();
+    const payload: Partial<Profile> = {
+      heroTitle:    raw.heroTitle    ?? undefined,
+      heroSubtitle: raw.heroSubtitle ?? undefined,
+      bio:          raw.bio          ?? undefined,
+      email:        raw.email        ?? undefined,
+      location:     raw.location     ?? undefined,
+      available:    raw.available    ?? undefined,
+      cvUrl:        raw.cvUrl        ?? undefined,
+      linkedinUrl:  raw.linkedinUrl  ?? undefined,
+      githubUrl:    raw.githubUrl    ?? undefined,
+    };
 
-    this.profileService.patch(raw).subscribe({
+    this.profileService.patch(payload).subscribe({
       next: () => { this.saved.set(true); this.saving.set(false); this.profileStore.loadProfile(); },
       error: () => { this.error.set('Erreur lors de la sauvegarde.'); this.saving.set(false); },
     });

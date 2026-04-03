@@ -45,7 +45,14 @@ export class AdminProjectsComponent implements OnInit {
     if (this.form.invalid || this.saving()) return;
     this.saving.set(true);
     const raw = this.form.getRawValue();
-    const payload = { ...raw, stack: raw.stack!.split(',').map((s) => s.trim()).filter(Boolean) };
+    const payload: Partial<Project> = {
+      title:       raw.title       ?? undefined,
+      description: raw.description ?? undefined,
+      stack:       raw.stack ? raw.stack.split(',').map((s) => s.trim()).filter(Boolean) : [],
+      githubUrl:   raw.githubUrl   ?? undefined,
+      liveUrl:     raw.liveUrl     ?? undefined,
+      imageUrl:    raw.imageUrl    ?? undefined,
+    };
     const current = this.editing();
 
     const req$ = current
