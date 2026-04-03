@@ -1,0 +1,4 @@
+[deploy]
+healthcheckPath = "/api/v1/health"
+healthcheckTimeout = 120
+overlapSeconds = 20
