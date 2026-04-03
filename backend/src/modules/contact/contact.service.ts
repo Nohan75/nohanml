@@ -1,4 +1,9 @@
-import { Injectable, Logger, InternalServerErrorException } from '@nestjs/common';
+import {
+  Injectable,
+  Logger,
+  InternalServerErrorException,
+  OnModuleInit,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -7,7 +12,7 @@ import { SendContactDto } from './dto/send-contact.dto';
 import { Profile } from '../profile/profile.entity';
 
 @Injectable()
-export class ContactService {
+export class ContactService implements OnModuleInit {
   private readonly logger = new Logger(ContactService.name);
   private transporter: nodemailer.Transporter;
 
@@ -27,10 +32,21 @@ export class ContactService {
     });
   }
 
+  async onModuleInit(): Promise<void> {
+    try {
+      await this.transporter.verify();
+      this.logger.log('SMTP connection verified ✓');
+    } catch (err: unknown) {
+      const e = err as { code?: string; response?: string };
+      this.logger.error(
+        `SMTP verification failed — code: ${e.code ?? '?'} | ${e.response ?? err}`,
+      );
+    }
+  }
+
   async send(dto: SendContactDto): Promise<void> {
     const mailFrom = this.config.get<string>('MAIL_USER');
 
-    // Récupère l'email de destination depuis le profil en base
     const profiles = await this.profileRepo.find({ take: 1 });
     const mailTo = profiles[0]?.email ?? this.config.get<string>('MAIL_TO');
 
@@ -40,10 +56,10 @@ export class ContactService {
 
     try {
       await this.transporter.sendMail({
-        from:    `"Portfolio" <${mailFrom}>`,
+        from:    mailFrom,
         to:      mailTo,
         replyTo: dto.email,
-        subject: `[Portfolio] Message de ${dto.name}`,
+        subject: `Message de ${dto.name} — Portfolio`,
         text:    `De : ${dto.name} <${dto.email}>\n\n${dto.message}`,
         html: `
           <div style="font-family:sans-serif;max-width:600px;margin:auto">
@@ -56,9 +72,12 @@ export class ContactService {
         `,
       });
 
-      this.logger.log(`Contact email sent from ${dto.email} to ${mailTo}`);
-    } catch (err) {
-      this.logger.error('Failed to send contact email', err);
+      this.logger.log(`Email envoyé de ${dto.email} vers ${mailTo}`);
+    } catch (err: unknown) {
+      const e = err as { code?: string; response?: string; responseCode?: number };
+      this.logger.error(
+        `Échec envoi email — code: ${e.code ?? '?'} | SMTP: ${e.responseCode ?? ''} ${e.response ?? err}`,
+      );
       throw new InternalServerErrorException("Erreur lors de l'envoi du message");
     }
   }
