@@ -1,37 +1,51 @@
 <nav class="navbar" role="navigation" aria-label="Navigation principale">
   <div class="container navbar__inner">
-    <a routerLink="/" class="navbar__brand" aria-label="Accueil">
+    <a routerLink="/" class="navbar__brand" aria-label="Accueil" (click)="closeMenu()">
       nohan<span class="navbar__brand--accent">ml</span>
     </a>
 
-    <ul class="navbar__links" role="list">
+    <div class="navbar__right">
+      <button
+        class="navbar__theme-btn"
+        (click)="themeService.toggle()"
+        [attr.aria-label]="themeService.theme() === 'dark' ? 'Passer en mode clair' : 'Passer en mode sombre'"
+        type="button"
+      >
+        @if (themeService.theme() === 'dark') {
+          ☀️
+        } @else {
+          🌙
+        }
+      </button>
+
+      <button
+        class="navbar__burger"
+        (click)="toggleMenu()"
+        [attr.aria-expanded]="menuOpen()"
+        aria-label="Menu"
+        type="button"
+      >
+        <span class="navbar__burger-line" [class.open]="menuOpen()"></span>
+        <span class="navbar__burger-line" [class.open]="menuOpen()"></span>
+        <span class="navbar__burger-line" [class.open]="menuOpen()"></span>
+      </button>
+    </div>
+
+    <ul class="navbar__links" [class.navbar__links--open]="menuOpen()" role="list">
       <li>
-        <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
+        <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }" (click)="closeMenu()">
           Accueil
         </a>
       </li>
       <li>
-        <a routerLink="/projects" routerLinkActive="active">Projets</a>
+        <a routerLink="/projects" routerLinkActive="active" (click)="closeMenu()">Projets</a>
       </li>
       <li>
-        <a routerLink="/about" routerLinkActive="active">À propos</a>
+        <a routerLink="/about" routerLinkActive="active" (click)="closeMenu()">À propos</a>
       </li>
       <li>
-        <a routerLink="/contact" routerLinkActive="active">Contact</a>
+        <a routerLink="/contact" routerLinkActive="active" (click)="closeMenu()">Contact</a>
       </li>
     </ul>
-
-    <button
-      class="navbar__theme-btn"
-      (click)="themeService.toggle()"
-      [attr.aria-label]="themeService.theme() === 'dark' ? 'Passer en mode clair' : 'Passer en mode sombre'"
-      type="button"
-    >
-      @if (themeService.theme() === 'dark') {
-        ☀️
-      } @else {
-        🌙
-      }
-    </button>
   </div>
 </nav>
