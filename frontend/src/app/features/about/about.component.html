@@ -14,17 +14,24 @@
 
   <div class="about__skills">
     <h2 class="about__skills-title">Compétences</h2>
-    <div class="about__categories">
-      @for (category of categories; track category) {
-        <div class="about__category">
-          <h3 class="about__category-name">{{ category }}</h3>
-          <ul class="about__skill-list" role="list">
-            @for (skill of skillsByCategory(category); track skill.name) {
-              <li class="about__skill-tag">{{ skill.name }}</li>
-            }
-          </ul>
-        </div>
-      }
-    </div>
+
+    @if (store.loading()) {
+      <p class="loading" aria-live="polite">Chargement...</p>
+    } @else if (store.error()) {
+      <p class="error" role="alert">{{ store.error() }}</p>
+    } @else {
+      <div class="about__categories">
+        @for (category of store.categories(); track category) {
+          <div class="about__category">
+            <h3 class="about__category-name">{{ category }}</h3>
+            <ul class="about__skill-list" role="list">
+              @for (skill of store.skillsByCategory(category); track skill.id) {
+                <li class="about__skill-tag">{{ skill.name }}</li>
+              }
+            </ul>
+          </div>
+        }
+      </div>
+    }
   </div>
 </section>

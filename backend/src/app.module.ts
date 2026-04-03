@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ProjectsModule } from './modules/projects/projects.module';
+import { SkillsModule } from './modules/skills/skills.module';
 import { ContactModule } from './modules/contact/contact.module';
 import { HealthModule } from './modules/health/health.module';
 
@@ -19,13 +20,11 @@ import { HealthModule } from './modules/health/health.module';
         url: config.get<string>('DATABASE_URL'),
         autoLoadEntities: true,
         synchronize: config.get<string>('NODE_ENV') !== 'production',
-        ssl:
-          config.get<string>('NODE_ENV') === 'production'
-            ? { rejectUnauthorized: false }
-            : false,
+        ssl: { rejectUnauthorized: false },
       }),
     }),
     ProjectsModule,
+    SkillsModule,
     ContactModule,
     HealthModule,
   ],
