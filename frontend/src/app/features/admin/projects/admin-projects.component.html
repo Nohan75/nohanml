@@ -1,0 +1,71 @@
+<div class="admin-section">
+  <div class="admin-section__header">
+    <h1 class="admin-section__title">Projets</h1>
+    @if (!editing()) {
+      <button class="btn-primary" (click)="startEdit({ id: 0, title: '', description: '', stack: [], createdAt: '' })">
+        + Nouveau projet
+      </button>
+    }
+  </div>
+
+  @if (editing()) {
+    <form [formGroup]="form" (ngSubmit)="onSubmit()" novalidate class="admin-form">
+      <h2 class="admin-form__subtitle">{{ editing()!.id ? 'Modifier' : 'Nouveau projet' }}</h2>
+
+      <div class="form-field">
+        <label for="title">Titre</label>
+        <input id="title" type="text" formControlName="title" />
+      </div>
+      <div class="form-field">
+        <label for="description">Description</label>
+        <textarea id="description" formControlName="description" rows="4"></textarea>
+      </div>
+      <div class="form-field">
+        <label for="stack">Stack <span class="hint">(séparés par des virgules)</span></label>
+        <input id="stack" type="text" formControlName="stack" placeholder="Angular, NestJS, TypeScript" />
+      </div>
+      <div class="form-field">
+        <label for="githubUrl">GitHub URL</label>
+        <input id="githubUrl" type="url" formControlName="githubUrl" />
+      </div>
+      <div class="form-field">
+        <label for="liveUrl">Live URL</label>
+        <input id="liveUrl" type="url" formControlName="liveUrl" />
+      </div>
+      <div class="form-field">
+        <label for="imageUrl">Image URL</label>
+        <input id="imageUrl" type="url" formControlName="imageUrl" />
+      </div>
+
+      @if (error()) {
+        <p class="admin-form__error" role="alert">{{ error() }}</p>
+      }
+
+      <div class="admin-form__actions">
+        <button type="button" class="btn-outline" (click)="cancelEdit()">Annuler</button>
+        <button type="submit" class="btn-primary" [disabled]="form.invalid || saving()">
+          {{ saving() ? 'Sauvegarde...' : 'Sauvegarder' }}
+        </button>
+      </div>
+    </form>
+  }
+
+  @if (loading()) {
+    <p class="loading" aria-live="polite">Chargement...</p>
+  } @else {
+    <ul class="project-list" role="list">
+      @for (project of projects(); track project.id) {
+        <li class="project-item">
+          <div class="project-item__info">
+            <strong>{{ project.title }}</strong>
+            <span class="project-item__stack">{{ project.stack.join(' · ') }}</span>
+          </div>
+          <div class="project-item__actions">
+            <button class="btn-icon" (click)="startEdit(project)" aria-label="Modifier {{ project.title }}">✏️</button>
+            <button class="btn-icon btn-icon--danger" (click)="delete(project.id)" aria-label="Supprimer {{ project.title }}">🗑️</button>
+          </div>
+        </li>
+      }
+    </ul>
+  }
+</div>

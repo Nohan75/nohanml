@@ -11,4 +11,8 @@ export class ProfileService {
   get(): Observable<Profile> {
     return this.http.get<Profile>(`${environment.apiUrl}/profile`);
   }
+
+  patch(payload: Partial<Profile>): Observable<Profile> {
+    return this.http.patch<Profile>(`${environment.apiUrl}/profile`, payload);
+  }
 }

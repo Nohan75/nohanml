@@ -1,0 +1,68 @@
+<div class="admin-section">
+  <h1 class="admin-section__title">Profil</h1>
+
+  <form [formGroup]="form" (ngSubmit)="onSubmit()" novalidate class="admin-form">
+    <fieldset class="admin-form__group">
+      <legend>Page d'accueil</legend>
+      <div class="form-field">
+        <label for="heroTitle">Titre hero</label>
+        <input id="heroTitle" type="text" formControlName="heroTitle" />
+      </div>
+      <div class="form-field">
+        <label for="heroSubtitle">Sous-titre hero</label>
+        <textarea id="heroSubtitle" formControlName="heroSubtitle" rows="3"></textarea>
+      </div>
+    </fieldset>
+
+    <fieldset class="admin-form__group">
+      <legend>À propos</legend>
+      <div class="form-field">
+        <label for="bio">Bio</label>
+        <textarea id="bio" formControlName="bio" rows="5"></textarea>
+      </div>
+    </fieldset>
+
+    <fieldset class="admin-form__group">
+      <legend>Informations</legend>
+      <div class="form-field">
+        <label for="email">Email</label>
+        <input id="email" type="email" formControlName="email" />
+      </div>
+      <div class="form-field">
+        <label for="location">Localisation</label>
+        <input id="location" type="text" formControlName="location" />
+      </div>
+      <div class="form-field form-field--checkbox">
+        <input id="available" type="checkbox" formControlName="available" />
+        <label for="available">Disponible</label>
+      </div>
+    </fieldset>
+
+    <fieldset class="admin-form__group">
+      <legend>Liens</legend>
+      <div class="form-field">
+        <label for="cvUrl">URL CV</label>
+        <input id="cvUrl" type="url" formControlName="cvUrl" placeholder="https://..." />
+      </div>
+      <div class="form-field">
+        <label for="linkedinUrl">LinkedIn</label>
+        <input id="linkedinUrl" type="url" formControlName="linkedinUrl" placeholder="https://linkedin.com/in/..." />
+      </div>
+      <div class="form-field">
+        <label for="githubUrl">GitHub</label>
+        <input id="githubUrl" type="url" formControlName="githubUrl" placeholder="https://github.com/..." />
+      </div>
+    </fieldset>
+
+    @if (saved()) {
+      <p class="admin-form__success" role="status">✅ Profil sauvegardé.</p>
+    }
+    @if (error()) {
+      <p class="admin-form__error" role="alert">{{ error() }}</p>
+    }
+
+    <button type="submit" class="btn-primary" [disabled]="form.invalid || saving()">
+      {{ saving() ? 'Sauvegarde...' : 'Sauvegarder' }}
+    </button>
+  </form>
+</div>

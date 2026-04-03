@@ -1,0 +1,36 @@
+<div class="admin">
+  <aside class="admin__sidebar">
+    <div class="admin__brand">⚙️ Admin</div>
+    <nav aria-label="Navigation admin">
+      <ul class="admin__nav" role="list">
+        <li>
+          <a routerLink="/admin/dashboard" routerLinkActive="active" aria-label="Dashboard">
+            📊 Dashboard
+          </a>
+        </li>
+        <li>
+          <a routerLink="/admin/profile" routerLinkActive="active" aria-label="Profil">
+            👤 Profil
+          </a>
+        </li>
+        <li>
+          <a routerLink="/admin/projects" routerLinkActive="active" aria-label="Projets">
+            🗂️ Projets
+          </a>
+        </li>
+        <li>
+          <a routerLink="/admin/skills" routerLinkActive="active" aria-label="Compétences">
+            🛠️ Compétences
+          </a>
+        </li>
+      </ul>
+    </nav>
+    <button class="admin__logout" (click)="authService.logout()" type="button">
+      🚪 Déconnexion
+    </button>
+  </aside>
+
+  <main class="admin__content">
+    <router-outlet />
+  </main>
+</div>

@@ -1,0 +1,76 @@
+.admin {
+  display: flex;
+  min-height: 100vh;
+
+  &__sidebar {
+    width: 220px;
+    flex-shrink: 0;
+    background-color: var(--color-bg-surface);
+    border-right: 1px solid var(--color-border);
+    display: flex;
+    flex-direction: column;
+    padding: 1.5rem 1rem;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+  }
+
+  &__brand {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--color-primary);
+    margin-bottom: 2rem;
+    padding-left: 0.5rem;
+  }
+
+  &__nav {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    flex: 1;
+
+    a {
+      display: block;
+      padding: 0.6rem 0.75rem;
+      border-radius: 8px;
+      color: var(--color-text-muted);
+      font-size: 0.9rem;
+      text-decoration: none;
+      transition: background-color 0.15s, color 0.15s;
+
+      &:hover,
+      &.active {
+        background-color: var(--color-bg);
+        color: var(--color-text);
+      }
+
+      &.active {
+        color: var(--color-primary);
+      }
+    }
+  }
+
+  &__logout {
+    background: none;
+    border: 1px solid var(--color-border);
+    border-radius: 8px;
+    padding: 0.5rem 0.75rem;
+    color: var(--color-text-muted);
+    font-size: 0.85rem;
+    cursor: pointer;
+    text-align: left;
+    transition: border-color 0.2s, color 0.2s;
+
+    &:hover {
+      border-color: #f87171;
+      color: #f87171;
+    }
+  }
+
+  &__content {
+    flex: 1;
+    padding: 2rem;
+    overflow-y: auto;
+  }
+}

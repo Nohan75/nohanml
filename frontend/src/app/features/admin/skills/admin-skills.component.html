@@ -1,0 +1,55 @@
+<div class="admin-section">
+  <div class="admin-section__header">
+    <h1 class="admin-section__title">Compétences</h1>
+    @if (!editing()) {
+      <button class="btn-primary" (click)="startEdit({ id: 0, name: '', category: '', order: 0 })">
+        + Nouvelle compétence
+      </button>
+    }
+  </div>
+
+  @if (editing()) {
+    <form [formGroup]="form" (ngSubmit)="onSubmit()" novalidate class="admin-form">
+      <h2 class="admin-form__subtitle">{{ editing()!.id ? 'Modifier' : 'Nouvelle compétence' }}</h2>
+      <div class="form-field">
+        <label for="name">Nom</label>
+        <input id="name" type="text" formControlName="name" />
+      </div>
+      <div class="form-field">
+        <label for="category">Catégorie</label>
+        <input id="category" type="text" formControlName="category" placeholder="Frontend, Backend, Outils…" />
+      </div>
+      <div class="form-field">
+        <label for="order">Ordre</label>
+        <input id="order" type="number" formControlName="order" />
+      </div>
+      <div class="admin-form__actions">
+        <button type="button" class="btn-outline" (click)="cancelEdit()">Annuler</button>
+        <button type="submit" class="btn-primary" [disabled]="form.invalid || saving()">
+          {{ saving() ? 'Sauvegarde...' : 'Sauvegarder' }}
+        </button>
+      </div>
+    </form>
+  }
+
+  @if (loading()) {
+    <p class="loading" aria-live="polite">Chargement...</p>
+  } @else {
+    @for (category of categories(); track category) {
+      <div class="skill-group">
+        <h3 class="skill-group__title">{{ category }}</h3>
+        <ul class="skill-list" role="list">
+          @for (skill of store.skillsByCategory(category); track skill.id) {
+            <li class="skill-item">
+              <span>{{ skill.name }}</span>
+              <div class="skill-item__actions">
+                <button class="btn-icon" (click)="startEdit(skill)" aria-label="Modifier {{ skill.name }}">✏️</button>
+                <button class="btn-icon btn-icon--danger" (click)="delete(skill.id)" aria-label="Supprimer {{ skill.name }}">🗑️</button>
+              </div>
+            </li>
+          }
+        </ul>
+      </div>
+    }
+  }
+</div>

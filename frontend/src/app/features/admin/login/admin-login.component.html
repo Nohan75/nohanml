@@ -1,0 +1,45 @@
+<div class="login">
+  <div class="login__card">
+    <h1 class="login__title">⚙️ Admin</h1>
+    <p class="login__subtitle">Accès réservé</p>
+
+    <form [formGroup]="form" (ngSubmit)="onSubmit()" novalidate class="login__form">
+      <div class="form-field">
+        <label for="email" class="form-field__label">Email</label>
+        <input
+          id="email"
+          type="email"
+          formControlName="email"
+          class="form-field__input"
+          autocomplete="email"
+          [attr.aria-invalid]="form.controls.email.invalid && form.controls.email.touched"
+        />
+      </div>
+
+      <div class="form-field">
+        <label for="password" class="form-field__label">Mot de passe</label>
+        <input
+          id="password"
+          type="password"
+          formControlName="password"
+          class="form-field__input"
+          autocomplete="current-password"
+          [attr.aria-invalid]="form.controls.password.invalid && form.controls.password.touched"
+        />
+      </div>
+
+      @if (error()) {
+        <p class="login__error" role="alert">{{ error() }}</p>
+      }
+
+      <button
+        type="submit"
+        class="login__submit"
+        [disabled]="form.invalid || loading()"
+        [attr.aria-busy]="loading()"
+      >
+        {{ loading() ? 'Connexion...' : 'Se connecter' }}
+      </button>
+    </form>
+  </div>
+</div>

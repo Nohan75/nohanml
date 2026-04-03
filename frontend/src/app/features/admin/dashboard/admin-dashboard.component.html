@@ -1,0 +1,57 @@
+<div class="dashboard">
+  <h1 class="dashboard__title">Dashboard</h1>
+
+  @if (loading()) {
+    <p class="loading" aria-live="polite">Chargement des statistiques...</p>
+  } @else if (error()) {
+    <p class="error" role="alert">{{ error() }}</p>
+  } @else if (stats(); as s) {
+    <div class="dashboard__grid">
+
+      <!-- Projets -->
+      <div class="stat-card">
+        <div class="stat-card__icon">🗂️</div>
+        <div class="stat-card__body">
+          <span class="stat-card__value">{{ s.projects.total }}</span>
+          <span class="stat-card__label">Projets</span>
+        </div>
+        @if (s.projects.latest) {
+          <p class="stat-card__sub">Dernier : {{ s.projects.latest.title }}</p>
+        }
+      </div>
+
+      <!-- Compétences -->
+      <div class="stat-card">
+        <div class="stat-card__icon">🛠️</div>
+        <div class="stat-card__body">
+          <span class="stat-card__value">{{ s.skills.total }}</span>
+          <span class="stat-card__label">Compétences</span>
+        </div>
+        <ul class="stat-card__list" role="list">
+          @for (entry of categoryEntries(); track entry[0]) {
+            <li>{{ entry[0] }} : <strong>{{ entry[1] }}</strong></li>
+          }
+        </ul>
+      </div>
+
+      <!-- Profil -->
+      <div class="stat-card">
+        <div class="stat-card__icon">👤</div>
+        <div class="stat-card__body">
+          <span class="stat-card__value">{{ s.profile.completeness }}%</span>
+          <span class="stat-card__label">Profil complété</span>
+        </div>
+        <div class="stat-card__progress" role="progressbar" [attr.aria-valuenow]="s.profile.completeness" aria-valuemin="0" aria-valuemax="100">
+          <div class="stat-card__progress-bar" [style.width.%]="s.profile.completeness"></div>
+        </div>
+        <p class="stat-card__sub">
+          Disponibilité :
+          <span [class]="s.profile.available ? 'badge badge--green' : 'badge badge--red'">
+            {{ s.profile.available ? 'Disponible' : 'Non disponible' }}
+          </span>
+        </p>
+      </div>
+
+    </div>
+  }
+</div>

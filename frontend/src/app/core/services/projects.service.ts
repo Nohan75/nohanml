@@ -15,4 +15,16 @@ export class ProjectsService {
   getById(id: number): Observable<Project> {
     return this.http.get<Project>(`${environment.apiUrl}/projects/${id}`);
   }
+
+  create(payload: Partial<Project>): Observable<Project> {
+    return this.http.post<Project>(`${environment.apiUrl}/projects`, payload);
+  }
+
+  update(id: number, payload: Partial<Project>): Observable<Project> {
+    return this.http.patch<Project>(`${environment.apiUrl}/projects/${id}`, payload);
+  }
+
+  delete(id: number): Observable<void> {
+    return this.http.delete<void>(`${environment.apiUrl}/projects/${id}`);
+  }
 }

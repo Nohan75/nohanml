@@ -11,4 +11,16 @@ export class SkillsService {
   getAll(): Observable<Skill[]> {
     return this.http.get<Skill[]>(`${environment.apiUrl}/skills`);
   }
+
+  create(payload: Partial<Skill>): Observable<Skill> {
+    return this.http.post<Skill>(`${environment.apiUrl}/skills`, payload);
+  }
+
+  update(id: number, payload: Partial<Skill>): Observable<Skill> {
+    return this.http.patch<Skill>(`${environment.apiUrl}/skills/${id}`, payload);
+  }
+
+  delete(id: number): Observable<void> {
+    return this.http.delete<void>(`${environment.apiUrl}/skills/${id}`);
+  }
 }

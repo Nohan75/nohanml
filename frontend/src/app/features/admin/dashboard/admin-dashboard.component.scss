@@ -1,0 +1,96 @@
+.dashboard {
+  &__title {
+    font-size: 1.75rem;
+    font-weight: 800;
+    margin-bottom: 2rem;
+  }
+
+  &__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1.25rem;
+  }
+}
+
+.stat-card {
+  background-color: var(--color-bg-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+
+  &__icon {
+    font-size: 1.75rem;
+  }
+
+  &__body {
+    display: flex;
+    align-items: baseline;
+    gap: 0.5rem;
+  }
+
+  &__value {
+    font-size: 2.25rem;
+    font-weight: 800;
+    color: var(--color-primary);
+    line-height: 1;
+  }
+
+  &__label {
+    font-size: 0.9rem;
+    color: var(--color-text-muted);
+  }
+
+  &__sub {
+    font-size: 0.8rem;
+    color: var(--color-text-muted);
+  }
+
+  &__list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+    font-size: 0.8rem;
+    color: var(--color-text-muted);
+  }
+
+  &__progress {
+    height: 6px;
+    background-color: var(--color-border);
+    border-radius: 999px;
+    overflow: hidden;
+  }
+
+  &__progress-bar {
+    height: 100%;
+    background-color: var(--color-primary);
+    border-radius: 999px;
+    transition: width 0.4s ease;
+  }
+}
+
+.badge {
+  display: inline-block;
+  padding: 0.15rem 0.5rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 500;
+
+  &--green {
+    background-color: #052e16;
+    color: #86efac;
+  }
+
+  &--red {
+    background-color: #450a0a;
+    color: #fca5a5;
+  }
+}
+
+.loading, .error {
+  color: var(--color-text-muted);
+}
+.error { color: #f87171; }
