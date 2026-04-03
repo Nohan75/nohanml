@@ -1,14 +1,21 @@
 import { Injectable, Logger, InternalServerErrorException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 import * as nodemailer from 'nodemailer';
 import { SendContactDto } from './dto/send-contact.dto';
+import { Profile } from '../profile/profile.entity';
 
 @Injectable()
 export class ContactService {
   private readonly logger = new Logger(ContactService.name);
   private transporter: nodemailer.Transporter;
 
-  constructor(private readonly config: ConfigService) {
+  constructor(
+    private readonly config: ConfigService,
+    @InjectRepository(Profile)
+    private readonly profileRepo: Repository<Profile>,
+  ) {
     this.transporter = nodemailer.createTransport({
       service: 'gmail',
       auth: {
@@ -19,8 +26,15 @@ export class ContactService {
   }
 
   async send(dto: SendContactDto): Promise<void> {
-    const mailTo   = this.config.get<string>('MAIL_TO');
-    const mailFrom = this.config.get<string>('MAIL_FROM');
+    const mailFrom = this.config.get<string>('MAIL_USER');
+
+    // Récupère l'email de destination depuis le profil en base
+    const profiles = await this.profileRepo.find({ take: 1 });
+    const mailTo = profiles[0]?.email ?? this.config.get<string>('MAIL_TO');
+
+    if (!mailTo) {
+      throw new InternalServerErrorException('Adresse de destination introuvable');
+    }
 
     try {
       await this.transporter.sendMail({
@@ -40,7 +54,7 @@ export class ContactService {
         `,
       });
 
-      this.logger.log(`Contact email sent from ${dto.email}`);
+      this.logger.log(`Contact email sent from ${dto.email} to ${mailTo}`);
     } catch (err) {
       this.logger.error('Failed to send contact email', err);
       throw new InternalServerErrorException("Erreur lors de l'envoi du message");
