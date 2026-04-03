@@ -1,11 +1,15 @@
 <section class="hero container">
-  <h1 class="hero__title">
-    Salut, je suis <span class="hero__title--accent">Nohan</span> 👋
-  </h1>
-  <p class="hero__subtitle">
-    Développeur fullstack passionné par Angular & NestJS.
-    Je construis des applications web modernes, performantes et accessibles.
-  </p>
+  @if (profileStore.loading()) {
+    <p class="loading" aria-live="polite">Chargement...</p>
+  } @else if (profileStore.profile(); as profile) {
+    <h1 class="hero__title">{{ profile.heroTitle }}</h1>
+    <p class="hero__subtitle">{{ profile.heroSubtitle }}</p>
+
+    @if (profile.available) {
+      <span class="hero__badge">🟢 Disponible</span>
+    }
+  }
+
   <div class="hero__cta">
     <a routerLink="/projects" class="btn btn--primary">Voir mes projets</a>
     <a routerLink="/contact" class="btn btn--outline">Me contacter</a>
@@ -15,13 +19,13 @@
 <section class="latest container">
   <h2 class="latest__title">Derniers projets</h2>
 
-  @if (store.loading()) {
+  @if (projectsStore.loading()) {
     <p class="loading" aria-live="polite">Chargement...</p>
-  } @else if (store.error()) {
-    <p class="error" role="alert">{{ store.error() }}</p>
+  } @else if (projectsStore.error()) {
+    <p class="error" role="alert">{{ projectsStore.error() }}</p>
   } @else {
     <div class="latest__grid">
-      @for (project of store.latestProjects(); track project.id) {
+      @for (project of projectsStore.latestProjects(); track project.id) {
         <app-project-card [project]="project" />
       }
     </div>

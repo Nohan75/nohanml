@@ -21,6 +21,17 @@
     line-height: 1.7;
   }
 
+  &__badge {
+    display: inline-block;
+    font-size: 0.85rem;
+    padding: 0.3rem 0.8rem;
+    background-color: #052e16;
+    border: 1px solid #166534;
+    color: #86efac;
+    border-radius: 999px;
+    margin-bottom: 2rem;
+  }
+
   &__cta {
     display: flex;
     gap: 1rem;

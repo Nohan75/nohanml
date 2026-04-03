@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, inject, OnInit } from '@angular/core';
 import { SkillsStore } from '../../store/skills.store';
+import { ProfileStore } from '../../store/profile.store';
 
 @Component({
   selector: 'app-about',
@@ -10,11 +11,15 @@ import { SkillsStore } from '../../store/skills.store';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AboutComponent implements OnInit {
-  store = inject(SkillsStore);
+  skillsStore = inject(SkillsStore);
+  profileStore = inject(ProfileStore);
 
   ngOnInit(): void {
-    if (this.store.skills().length === 0) {
-      this.store.loadSkills();
+    if (this.skillsStore.skills().length === 0) {
+      this.skillsStore.loadSkills();
+    }
+    if (!this.profileStore.profile()) {
+      this.profileStore.loadProfile();
     }
   }
 }

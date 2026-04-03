@@ -3,6 +3,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ProjectsModule } from './modules/projects/projects.module';
 import { SkillsModule } from './modules/skills/skills.module';
+import { ProfileModule } from './modules/profile/profile.module';
 import { ContactModule } from './modules/contact/contact.module';
 import { HealthModule } from './modules/health/health.module';
 
@@ -25,6 +26,7 @@ import { HealthModule } from './modules/health/health.module';
     }),
     ProjectsModule,
     SkillsModule,
+    ProfileModule,
     ContactModule,
     HealthModule,
   ],

@@ -1,21 +1,27 @@
 import { ChangeDetectionStrategy, Component, inject, OnInit } from '@angular/core';
+import { RouterLink } from '@angular/router';
 import { ProjectCardComponent } from '../../core/components/project-card/project-card.component';
 import { ProjectsStore } from '../../store/projects.store';
+import { ProfileStore } from '../../store/profile.store';
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [ProjectCardComponent],
+  imports: [RouterLink, ProjectCardComponent],
   templateUrl: './home.component.html',
   styleUrl: './home.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class HomeComponent implements OnInit {
-  store = inject(ProjectsStore);
+  projectsStore = inject(ProjectsStore);
+  profileStore = inject(ProfileStore);
 
   ngOnInit(): void {
-    if (this.store.projects().length === 0) {
-      this.store.loadProjects();
+    if (this.projectsStore.projects().length === 0) {
+      this.projectsStore.loadProjects();
+    }
+    if (!this.profileStore.profile()) {
+      this.profileStore.loadProfile();
     }
   }
 }
