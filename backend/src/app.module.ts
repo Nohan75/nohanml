@@ -24,6 +24,8 @@ import { StatsModule } from './modules/stats/stats.module';
         autoLoadEntities: true,
         synchronize: config.get<string>('NODE_ENV') !== 'production',
         ssl: { rejectUnauthorized: false },
+        retryAttempts: 10,
+        retryDelay: 3000,
       }),
     }),
     ProjectsModule,
