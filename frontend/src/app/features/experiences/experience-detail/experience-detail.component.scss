@@ -1,3 +1,54 @@
+/* Detail skeleton */
+.detail-sk {
+  &__back {
+    height: 14px;
+    width: 160px;
+    border-radius: 6px;
+    margin-bottom: 2rem;
+  }
+
+  &__dates {
+    height: 14px;
+    width: 180px;
+    border-radius: 4px;
+  }
+
+  &__location {
+    height: 14px;
+    width: 120px;
+    border-radius: 4px;
+  }
+
+  &__title {
+    height: 40px;
+    width: min(460px, 80%);
+    border-radius: 8px;
+    margin: 0.75rem 0 0.5rem;
+  }
+
+  &__company {
+    height: 20px;
+    width: 200px;
+    border-radius: 6px;
+    margin-bottom: 0.5rem;
+  }
+
+  &__desc-line {
+    height: 16px;
+    width: 100%;
+    border-radius: 6px;
+    margin-bottom: 0.6rem;
+
+    &--short {
+      width: 55%;
+    }
+
+    &--medium {
+      width: 75%;
+    }
+  }
+}
+
 .loading,
 .error {
   color: var(--color-text-muted);

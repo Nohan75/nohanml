@@ -1,3 +1,64 @@
+/* About skeleton */
+.about-sk {
+  &__line {
+    height: 18px;
+    width: 100%;
+    border-radius: 6px;
+    margin-bottom: 0.6rem;
+
+    &--short {
+      width: 65%;
+    }
+  }
+
+  &__info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+    margin: 1.5rem 0;
+  }
+
+  &__info-row {
+    height: 16px;
+    width: min(340px, 80%);
+    border-radius: 6px;
+  }
+
+  &__social {
+    display: flex;
+    gap: 0.75rem;
+    margin-top: 1.25rem;
+    align-items: center;
+  }
+
+  &__social-circle {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  &__social-pill {
+    width: 72px;
+    height: 36px;
+    border-radius: 8px;
+  }
+
+  &__category-name {
+    height: 14px;
+    width: 120px;
+    border-radius: 4px;
+    margin-bottom: 0.75rem;
+  }
+
+  &__tag {
+    height: 30px;
+    width: 80px;
+    border-radius: 999px;
+    display: inline-block;
+  }
+}
+
 .about {
   padding: 4rem 1.5rem;
   max-width: 800px;

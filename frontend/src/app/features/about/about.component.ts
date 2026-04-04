@@ -14,6 +14,12 @@ export class AboutComponent implements OnInit {
   skillsStore = inject(SkillsStore);
   profileStore = inject(ProfileStore);
 
+  readonly skeletonCategories = [
+    Array(4),
+    Array(5),
+    Array(3),
+  ];
+
   ngOnInit(): void {
     if (this.skillsStore.skills().length === 0) {
       this.skillsStore.loadSkills();

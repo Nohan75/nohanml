@@ -5,13 +5,17 @@
   </p>
 
   @if (store.loading()) {
-    <p class="loading" aria-live="polite">Chargement des expériences...</p>
+    <div class="experiences__grid" aria-hidden="true">
+      @for (s of skeletons; track $index) {
+        <app-skeleton-card />
+      }
+    </div>
   } @else if (store.error()) {
     <p class="error" role="alert">{{ store.error() }}</p>
   } @else if (store.experiences().length === 0) {
     <p class="empty">Aucune expérience pour l'instant.</p>
   } @else {
-    <div class="experiences__grid">
+    <div class="experiences__grid fade-in">
       @for (experience of store.experiences(); track experience.id) {
         <app-experience-card [experience]="experience" />
       }

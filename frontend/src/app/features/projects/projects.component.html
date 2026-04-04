@@ -5,13 +5,17 @@
   </p>
 
   @if (store.loading()) {
-    <p class="loading" aria-live="polite">Chargement des projets...</p>
+    <div class="projects__grid" aria-hidden="true">
+      @for (s of skeletons; track $index) {
+        <app-skeleton-card />
+      }
+    </div>
   } @else if (store.error()) {
     <p class="error" role="alert">{{ store.error() }}</p>
   } @else if (store.projects().length === 0) {
     <p class="empty">Aucun projet pour l'instant.</p>
   } @else {
-    <div class="projects__grid">
+    <div class="projects__grid fade-in">
       @for (project of store.projects(); track project.id) {
         <app-project-card [project]="project" />
       }

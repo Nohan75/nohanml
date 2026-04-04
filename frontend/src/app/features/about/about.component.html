@@ -4,8 +4,23 @@
     <h1 class="about__title">À propos</h1>
 
     @if (profileStore.loading()) {
-      <p class="loading" aria-live="polite">Chargement...</p>
+      <div class="about__skeleton-bio" aria-hidden="true">
+        <div class="skeleton about-sk__line"></div>
+        <div class="skeleton about-sk__line about-sk__line--short"></div>
+        <div class="skeleton about-sk__line"></div>
+        <div class="about-sk__info">
+          <div class="skeleton about-sk__info-row"></div>
+          <div class="skeleton about-sk__info-row"></div>
+          <div class="skeleton about-sk__info-row"></div>
+        </div>
+        <div class="about-sk__social">
+          <div class="skeleton about-sk__social-circle"></div>
+          <div class="skeleton about-sk__social-circle"></div>
+          <div class="skeleton about-sk__social-pill"></div>
+        </div>
+      </div>
     } @else if (profileStore.profile(); as profile) {
+      <div class="fade-in">
       <p class="about__text">{{ profile.bio }}</p>
 
       <ul class="about__info" role="list">
@@ -64,6 +79,7 @@
           </a>
         }
       </div>
+      </div>
     }
   </div>
 
@@ -71,11 +87,22 @@
     <h2 class="about__skills-title">Compétences</h2>
 
     @if (skillsStore.loading()) {
-      <p class="loading" aria-live="polite">Chargement...</p>
+      <div class="about__categories" aria-hidden="true">
+        @for (cat of skeletonCategories; track $index) {
+          <div class="about__category">
+            <div class="skeleton about-sk__category-name"></div>
+            <div class="about__skill-list">
+              @for (tag of cat; track $index) {
+                <div class="skeleton about-sk__tag"></div>
+              }
+            </div>
+          </div>
+        }
+      </div>
     } @else if (skillsStore.error()) {
       <p class="error" role="alert">{{ skillsStore.error() }}</p>
     } @else {
-      <div class="about__categories">
+      <div class="about__categories fade-in">
         @for (category of skillsStore.categories(); track category) {
           <div class="about__category">
             <h3 class="about__category-name">{{ category }}</h3>

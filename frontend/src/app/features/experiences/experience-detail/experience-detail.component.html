@@ -1,5 +1,22 @@
 @if (loading()) {
-  <p class="loading container" aria-live="polite">Chargement...</p>
+  <div class="detail container fade-in" aria-hidden="true">
+    <div class="skeleton detail-sk__back"></div>
+    <header class="detail__header">
+      <div class="detail__meta">
+        <div class="skeleton detail-sk__dates"></div>
+        <div class="skeleton detail-sk__location"></div>
+      </div>
+      <div class="skeleton detail-sk__title"></div>
+      <div class="skeleton detail-sk__company"></div>
+    </header>
+    <div class="detail__description">
+      <div class="skeleton detail-sk__desc-line"></div>
+      <div class="skeleton detail-sk__desc-line"></div>
+      <div class="skeleton detail-sk__desc-line detail-sk__desc-line--short"></div>
+      <div class="skeleton detail-sk__desc-line"></div>
+      <div class="skeleton detail-sk__desc-line detail-sk__desc-line--medium"></div>
+    </div>
+  </div>
 } @else if (error()) {
   <div class="container">
     <p class="error" role="alert">{{ error() }}</p>
