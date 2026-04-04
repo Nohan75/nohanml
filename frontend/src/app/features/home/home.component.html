@@ -1,13 +1,18 @@
 <section class="hero container">
   @if (profileStore.loading()) {
-    <p class="loading" aria-live="polite">Chargement...</p>
+    <div class="hero__skeleton" aria-hidden="true">
+      <div class="skeleton hero-sk__title"></div>
+      <div class="skeleton hero-sk__subtitle"></div>
+      <div class="skeleton hero-sk__subtitle hero-sk__subtitle--short"></div>
+    </div>
   } @else if (profileStore.profile(); as profile) {
-    <h1 class="hero__title">{{ profile.heroTitle }}</h1>
-    <p class="hero__subtitle">{{ profile.heroSubtitle }}</p>
-
-    @if (profile.available) {
-      <span class="hero__badge">🟢 Disponible</span>
-    }
+    <div class="fade-in">
+      <h1 class="hero__title">{{ profile.heroTitle }}</h1>
+      <p class="hero__subtitle">{{ profile.heroSubtitle }}</p>
+      @if (profile.available) {
+        <span class="hero__badge">🟢 Disponible</span>
+      }
+    </div>
   }
 
   <div class="hero__cta">
@@ -20,11 +25,15 @@
   <h2 class="latest__title">Derniers projets</h2>
 
   @if (projectsStore.loading()) {
-    <p class="loading" aria-live="polite">Chargement...</p>
+    <div class="latest__grid" aria-hidden="true">
+      <app-skeleton-card />
+      <app-skeleton-card />
+      <app-skeleton-card />
+    </div>
   } @else if (projectsStore.error()) {
     <p class="error" role="alert">{{ projectsStore.error() }}</p>
   } @else {
-    <div class="latest__grid">
+    <div class="latest__grid fade-in">
       @for (project of projectsStore.latestProjects(); track project.id) {
         <app-project-card [project]="project" />
       }

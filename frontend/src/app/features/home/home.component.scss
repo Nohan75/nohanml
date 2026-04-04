@@ -94,13 +94,34 @@
   }
 }
 
-.loading,
 .error {
-  color: var(--color-text-muted);
+  color: #f87171;
   text-align: center;
   padding: 2rem;
 }
 
-.error {
-  color: #f87171;
+/* Hero skeleton */
+.hero__skeleton {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 2.5rem;
+}
+
+.hero-sk {
+  &__title {
+    height: 56px;
+    width: min(480px, 80%);
+    border-radius: 10px;
+  }
+
+  &__subtitle {
+    height: 18px;
+    width: min(520px, 85%);
+
+    &--short {
+      width: min(360px, 60%);
+    }
+  }
 }
