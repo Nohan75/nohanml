@@ -68,7 +68,7 @@
         type="button"
       >‹</button>
 
-      <div class="lightbox__img-wrapper" (click)="$event.stopPropagation()" (keydown)="$event.stopPropagation()">
+      <div class="lightbox__img-wrapper" tabindex="0" (click)="$event.stopPropagation()" (keydown)="$event.stopPropagation()">
         <img
           class="lightbox__img"
           [src]="experience()!.photos[lightboxIndex()!]"
