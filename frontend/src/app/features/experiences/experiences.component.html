@@ -1,0 +1,20 @@
+<section class="experiences container">
+  <h1 class="experiences__title">Mes expériences</h1>
+  <p class="experiences__subtitle">
+    Mon parcours professionnel et mes missions.
+  </p>
+
+  @if (store.loading()) {
+    <p class="loading" aria-live="polite">Chargement des expériences...</p>
+  } @else if (store.error()) {
+    <p class="error" role="alert">{{ store.error() }}</p>
+  } @else if (store.experiences().length === 0) {
+    <p class="empty">Aucune expérience pour l'instant.</p>
+  } @else {
+    <div class="experiences__grid">
+      @for (experience of store.experiences(); track experience.id) {
+        <app-experience-card [experience]="experience" />
+      }
+    </div>
+  }
+</section>

@@ -34,6 +34,11 @@ export const adminRoutes: Routes = [
         loadComponent: () =>
           import('./skills/admin-skills.component').then((m) => m.AdminSkillsComponent),
       },
+      {
+        path: 'experiences',
+        loadComponent: () =>
+          import('./experiences/admin-experiences.component').then((m) => m.AdminExperiencesComponent),
+      },
     ],
   },
 ];

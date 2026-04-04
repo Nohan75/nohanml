@@ -14,6 +14,20 @@ export const routes: Routes = [
       ),
   },
   {
+    path: 'experiences',
+    loadComponent: () =>
+      import('./features/experiences/experiences.component').then(
+        (m) => m.ExperiencesComponent
+      ),
+  },
+  {
+    path: 'experiences/:id',
+    loadComponent: () =>
+      import('./features/experiences/experience-detail/experience-detail.component').then(
+        (m) => m.ExperienceDetailComponent
+      ),
+  },
+  {
     path: 'about',
     loadComponent: () =>
       import('./features/about/about.component').then((m) => m.AboutComponent),

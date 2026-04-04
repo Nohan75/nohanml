@@ -1,0 +1,88 @@
+@if (loading()) {
+  <p class="loading container" aria-live="polite">Chargement...</p>
+} @else if (error()) {
+  <div class="container">
+    <p class="error" role="alert">{{ error() }}</p>
+    <a routerLink="/experiences" class="btn-outline">← Retour</a>
+  </div>
+} @else if (experience(); as exp) {
+  <article class="detail container">
+
+    <a routerLink="/experiences" class="detail__back">← Retour aux expériences</a>
+
+    <header class="detail__header">
+      <div class="detail__meta">
+        <span class="detail__dates">{{ exp.startDate }} — {{ exp.endDate ?? 'En cours' }}</span>
+        @if (exp.location) {
+          <span class="detail__location">📍 {{ exp.location }}</span>
+        }
+      </div>
+      <h1 class="detail__title">{{ exp.title }}</h1>
+      <p class="detail__company">{{ exp.company }}</p>
+    </header>
+
+    <section class="detail__description">
+      <p>{{ exp.description }}</p>
+    </section>
+
+    @if (exp.photos.length > 0) {
+      <section class="detail__gallery" aria-label="Photos">
+        <h2 class="detail__gallery-title">Photos</h2>
+        <div class="detail__gallery-grid">
+          @for (photo of exp.photos; track photo; let i = $index) {
+            <button
+              class="detail__gallery-item"
+              (click)="openLightbox(i)"
+              [attr.aria-label]="'Voir la photo ' + (i + 1)"
+              type="button"
+            >
+              <img [src]="photo" [alt]="exp.title + ' — photo ' + (i + 1)" loading="lazy" />
+            </button>
+          }
+        </div>
+      </section>
+    }
+  </article>
+
+  @if (lightboxIndex() !== null) {
+    <div
+      class="lightbox"
+      role="dialog"
+      aria-modal="true"
+      aria-label="Galerie photo"
+      (click)="closeLightbox()"
+    >
+      <button
+        class="lightbox__close"
+        (click)="closeLightbox()"
+        aria-label="Fermer"
+        type="button"
+      >✕</button>
+
+      <button
+        class="lightbox__nav lightbox__nav--prev"
+        (click)="$event.stopPropagation(); prevPhoto()"
+        aria-label="Photo précédente"
+        type="button"
+      >‹</button>
+
+      <img
+        class="lightbox__img"
+        [src]="experience()!.photos[lightboxIndex()!]"
+        [alt]="experience()!.title + ' — photo ' + (lightboxIndex()! + 1)"
+        (click)="$event.stopPropagation()"
+      />
+
+      <button
+        class="lightbox__nav lightbox__nav--next"
+        (click)="$event.stopPropagation(); nextPhoto()"
+        aria-label="Photo suivante"
+        type="button"
+      >›</button>
+
+      <span class="lightbox__counter" aria-live="polite">
+        {{ lightboxIndex()! + 1 }} / {{ experience()!.photos.length }}
+      </span>
+    </div>
+  }
+}

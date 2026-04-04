@@ -1,0 +1,117 @@
+<div class="admin-section">
+  <div class="admin-section__header">
+    <h1 class="admin-section__title">Expériences</h1>
+    @if (!editing()) {
+      <button class="btn-primary" (click)="startCreate()">+ Nouvelle expérience</button>
+    }
+  </div>
+
+  @if (editing()) {
+    <form [formGroup]="form" (ngSubmit)="onSubmit()" novalidate class="admin-form">
+      <h2 class="admin-form__subtitle">
+        {{ editing()!.id ? 'Modifier l\'expérience' : 'Nouvelle expérience' }}
+      </h2>
+
+      <div class="form-row">
+        <div class="form-field">
+          <label for="title">Poste</label>
+          <input id="title" type="text" formControlName="title" placeholder="Développeur Full Stack" />
+        </div>
+        <div class="form-field">
+          <label for="company">Entreprise</label>
+          <input id="company" type="text" formControlName="company" placeholder="Nom de l'entreprise" />
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-field">
+          <label for="startDate">Date de début</label>
+          <input id="startDate" type="text" formControlName="startDate" placeholder="Janvier 2023" />
+        </div>
+        <div class="form-field">
+          <label for="endDate">Date de fin <span class="hint">(vide = En cours)</span></label>
+          <input id="endDate" type="text" formControlName="endDate" placeholder="Décembre 2023" />
+        </div>
+      </div>
+
+      <div class="form-field">
+        <label for="location">Localisation</label>
+        <input id="location" type="text" formControlName="location" placeholder="Paris, France" />
+      </div>
+
+      <div class="form-field">
+        <label for="description">Description</label>
+        <textarea id="description" formControlName="description" rows="5" placeholder="Décrivez vos missions et responsabilités..."></textarea>
+      </div>
+
+      <div class="form-field">
+        <label for="thumbnailUrl">Image de couverture (URL)</label>
+        <input id="thumbnailUrl" type="url" formControlName="thumbnailUrl" placeholder="https://..." />
+      </div>
+
+      <!-- Photos -->
+      <div class="form-field">
+        <label>Photos <span class="hint">(URLs des photos du détail)</span></label>
+
+        <div class="photos-list">
+          @for (photo of photos(); track photo; let i = $index) {
+            <div class="photos-list__item">
+              <img [src]="photo" [alt]="'Photo ' + (i + 1)" class="photos-list__preview" />
+              <span class="photos-list__url">{{ photo }}</span>
+              <button
+                type="button"
+                class="btn-icon btn-icon--danger"
+                (click)="removePhoto(i)"
+                [attr.aria-label]="'Supprimer la photo ' + (i + 1)"
+              >🗑️</button>
+            </div>
+          }
+        </div>
+
+        <div class="photos-add">
+          <input
+            type="url"
+            [value]="newPhotoUrl()"
+            (input)="updateNewPhotoUrl($any($event.target).value)"
+            placeholder="https://... URL d'une photo"
+            class="photos-add__input"
+          />
+          <button type="button" class="btn-outline" (click)="addPhoto()">+ Ajouter</button>
+        </div>
+      </div>
+
+      @if (error()) {
+        <p class="admin-form__error" role="alert">{{ error() }}</p>
+      }
+
+      <div class="admin-form__actions">
+        <button type="button" class="btn-outline" (click)="cancelEdit()">Annuler</button>
+        <button type="submit" class="btn-primary" [disabled]="form.invalid || saving()">
+          {{ saving() ? 'Sauvegarde...' : 'Sauvegarder' }}
+        </button>
+      </div>
+    </form>
+  }
+
+  @if (loading()) {
+    <p class="loading" aria-live="polite">Chargement...</p>
+  } @else if (experiences().length === 0 && !editing()) {
+    <p class="empty">Aucune expérience pour l'instant.</p>
+  } @else if (!editing()) {
+    <ul class="exp-list" role="list">
+      @for (exp of experiences(); track exp.id) {
+        <li class="exp-item">
+          <div class="exp-item__info">
+            <strong>{{ exp.title }}</strong>
+            <span class="exp-item__company">{{ exp.company }}</span>
+            <span class="exp-item__dates">{{ exp.startDate }} — {{ exp.endDate ?? 'En cours' }}</span>
+          </div>
+          <div class="exp-item__actions">
+            <button class="btn-icon" (click)="startEdit(exp)" [attr.aria-label]="'Modifier ' + exp.title">✏️</button>
+            <button class="btn-icon btn-icon--danger" (click)="delete(exp.id)" [attr.aria-label]="'Supprimer ' + exp.title">🗑️</button>
+          </div>
+        </li>
+      }
+    </ul>
+  }
+</div>

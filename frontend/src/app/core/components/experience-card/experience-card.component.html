@@ -1,0 +1,33 @@
+<a
+  [routerLink]="['/experiences', experience().id]"
+  class="exp-card"
+  [attr.aria-label]="experience().title + ' chez ' + experience().company"
+>
+  <div class="exp-card__image">
+    @if (experience().thumbnailUrl) {
+      <img
+        [src]="experience().thumbnailUrl"
+        [alt]="experience().title + ' — ' + experience().company"
+        loading="lazy"
+      />
+    } @else {
+      <div class="exp-card__placeholder" aria-hidden="true">
+        <span class="exp-card__placeholder-icon">💼</span>
+      </div>
+    }
+  </div>
+
+  <div class="exp-card__body">
+    <div class="exp-card__meta">
+      <span class="exp-card__dates">
+        {{ experience().startDate }} — {{ experience().endDate ?? 'En cours' }}
+      </span>
+      @if (experience().location) {
+        <span class="exp-card__location">📍 {{ experience().location }}</span>
+      }
+    </div>
+    <h3 class="exp-card__title">{{ experience().title }}</h3>
+    <p class="exp-card__company">{{ experience().company }}</p>
+    <p class="exp-card__description">{{ experience().description }}</p>
+  </div>
+</a>
