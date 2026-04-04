@@ -111,6 +111,12 @@
   justify-content: center;
   z-index: 1000;
 
+  &__img-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
   &__img {
     max-width: 90vw;
     max-height: 85vh;

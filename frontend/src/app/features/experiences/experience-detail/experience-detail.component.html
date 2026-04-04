@@ -50,7 +50,9 @@
       role="dialog"
       aria-modal="true"
       aria-label="Galerie photo"
+      tabindex="0"
       (click)="closeLightbox()"
+      (keydown.escape)="closeLightbox()"
     >
       <button
         class="lightbox__close"
@@ -66,12 +68,13 @@
         type="button"
       >‹</button>
 
-      <img
-        class="lightbox__img"
-        [src]="experience()!.photos[lightboxIndex()!]"
-        [alt]="experience()!.title + ' — photo ' + (lightboxIndex()! + 1)"
-        (click)="$event.stopPropagation()"
-      />
+      <div class="lightbox__img-wrapper" (click)="$event.stopPropagation()" (keydown)="$event.stopPropagation()">
+        <img
+          class="lightbox__img"
+          [src]="experience()!.photos[lightboxIndex()!]"
+          [alt]="experience()!.title + ' — photo ' + (lightboxIndex()! + 1)"
+        />
+      </div>
 
       <button
         class="lightbox__nav lightbox__nav--next"

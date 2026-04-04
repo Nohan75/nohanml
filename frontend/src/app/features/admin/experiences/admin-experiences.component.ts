@@ -105,9 +105,10 @@ export class AdminExperiencesComponent implements OnInit {
     const files = input.files;
     if (!files || files.length === 0) return;
     this.photoUploading.set(true);
-    let remaining = files.length;
-    for (let i = 0; i < files.length; i++) {
-      this.uploadService.upload(files[i], 'experiences/photos').subscribe({
+    const fileArray = Array.from(files);
+    let remaining = fileArray.length;
+    for (const file of fileArray) {
+      this.uploadService.upload(file, 'experiences/photos').subscribe({
         next: ({ url }) => {
           this.photos.update((list) => [...list, url]);
           remaining--;
