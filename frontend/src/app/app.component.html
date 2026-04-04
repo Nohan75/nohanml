@@ -1,3 +1,6 @@
+@if (showSplash()) {
+  <app-splash-screen [hiding]="splashHiding()" />
+}
 <app-navbar />
 <main>
   <router-outlet />
