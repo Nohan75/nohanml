@@ -1,59 +1,5 @@
 @use '../admin-shared';
 
-.photos-list {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  margin-bottom: 0.75rem;
-
-  &__item {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    background-color: var(--color-bg);
-    border: 1px solid var(--color-border);
-    border-radius: 8px;
-    padding: 0.5rem;
-  }
-
-  &__preview {
-    width: 60px;
-    height: 40px;
-    object-fit: cover;
-    border-radius: 4px;
-    flex-shrink: 0;
-  }
-
-  &__url {
-    flex: 1;
-    font-size: 0.8rem;
-    color: var(--color-text-muted);
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-}
-
-.photos-add {
-  display: flex;
-  gap: 0.5rem;
-
-  &__input {
-    flex: 1;
-    background-color: var(--color-bg);
-    border: 1px solid var(--color-border);
-    border-radius: 8px;
-    padding: 0.55rem 0.8rem;
-    color: var(--color-text);
-    font-size: 0.9rem;
-    font-family: inherit;
-    outline: none;
-    transition: border-color 0.2s;
-
-    &:focus { border-color: var(--color-primary); }
-  }
-}
-
 .form-row {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -64,6 +10,146 @@
   }
 }
 
+/* Zone d'upload */
+.upload-zone {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  border: 2px dashed var(--color-border);
+  border-radius: 10px;
+  padding: 2rem 1rem;
+  cursor: pointer;
+  transition: border-color 0.2s, background-color 0.2s;
+  position: relative;
+  text-align: center;
+
+  &:hover:not(.upload-zone--loading) {
+    border-color: var(--color-primary);
+    background-color: rgba(99, 102, 241, 0.04);
+  }
+
+  &--small {
+    padding: 1rem;
+    margin-top: 0.75rem;
+  }
+
+  &--loading {
+    opacity: 0.7;
+    cursor: not-allowed;
+  }
+
+  &__input {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    cursor: pointer;
+    width: 100%;
+    height: 100%;
+
+    &:disabled { cursor: not-allowed; }
+  }
+
+  &__icon { font-size: 1.75rem; }
+
+  &__text {
+    font-size: 0.9rem;
+    color: var(--color-text);
+    font-weight: 500;
+  }
+
+  &__hint {
+    font-size: 0.75rem;
+    color: var(--color-text-muted);
+  }
+
+  &__spinner {
+    font-size: 0.9rem;
+    color: var(--color-text-muted);
+  }
+}
+
+/* Aperçu thumbnail */
+.upload-preview {
+  position: relative;
+  display: inline-block;
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1px solid var(--color-border);
+
+  &__img {
+    display: block;
+    width: 100%;
+    max-height: 200px;
+    object-fit: cover;
+  }
+
+  &__remove {
+    position: absolute;
+    top: 0.4rem;
+    right: 0.4rem;
+    background: rgba(0, 0, 0, 0.6);
+    border: none;
+    color: #fff;
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    font-size: 0.75rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s;
+
+    &:hover { background: #ef4444; }
+  }
+}
+
+/* Grille photos */
+.photos-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+
+  &__item {
+    position: relative;
+    aspect-ratio: 1;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid var(--color-border);
+
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+  }
+
+  &__remove {
+    position: absolute;
+    top: 0.25rem;
+    right: 0.25rem;
+    background: rgba(0, 0, 0, 0.6);
+    border: none;
+    color: #fff;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    font-size: 0.65rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s;
+
+    &:hover { background: #ef4444; }
+  }
+}
+
+/* Liste expériences */
 .exp-list {
   list-style: none;
   display: flex;
@@ -85,26 +171,12 @@
     flex-direction: column;
     gap: 0.2rem;
 
-    strong {
-      font-size: 0.95rem;
-      color: var(--color-text);
-    }
+    strong { font-size: 0.95rem; color: var(--color-text); }
   }
 
-  &__company {
-    font-size: 0.85rem;
-    color: var(--color-primary);
-  }
-
-  &__dates {
-    font-size: 0.8rem;
-    color: var(--color-text-muted);
-  }
-
-  &__actions {
-    display: flex;
-    gap: 0.5rem;
-  }
+  &__company { font-size: 0.85rem; color: var(--color-primary); }
+  &__dates   { font-size: 0.8rem;  color: var(--color-text-muted); }
+  &__actions { display: flex; gap: 0.5rem; }
 }
 
 .empty {

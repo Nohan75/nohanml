@@ -8,6 +8,7 @@ import {
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ExperiencesStore } from '../../../store/experiences.store';
 import { ExperiencesService } from '../../../core/services/experiences.service';
+import { UploadService } from '../../../core/services/upload.service';
 import { Experience } from '../../../core/models/experience.model';
 
 @Component({
@@ -22,6 +23,7 @@ export class AdminExperiencesComponent implements OnInit {
   private fb = inject(FormBuilder);
   private store = inject(ExperiencesStore);
   private service = inject(ExperiencesService);
+  private uploadService = inject(UploadService);
 
   experiences = this.store.experiences;
   loading = this.store.loading;
@@ -29,8 +31,10 @@ export class AdminExperiencesComponent implements OnInit {
   saving = signal(false);
   error = signal<string | null>(null);
 
+  thumbnailUrl = signal<string | null>(null);
+  thumbnailUploading = signal(false);
   photos = signal<string[]>([]);
-  newPhotoUrl = signal('');
+  photoUploading = signal(false);
 
   form = this.fb.group({
     title: ['', Validators.required],
@@ -39,7 +43,6 @@ export class AdminExperiencesComponent implements OnInit {
     startDate: ['', Validators.required],
     endDate: [''],
     description: ['', Validators.required],
-    thumbnailUrl: [''],
   });
 
   ngOnInit(): void {
@@ -48,6 +51,7 @@ export class AdminExperiencesComponent implements OnInit {
 
   startEdit(experience: Experience): void {
     this.editing.set(experience);
+    this.thumbnailUrl.set(experience.thumbnailUrl ?? null);
     this.photos.set([...experience.photos]);
     this.form.patchValue({
       title: experience.title,
@@ -56,37 +60,71 @@ export class AdminExperiencesComponent implements OnInit {
       startDate: experience.startDate,
       endDate: experience.endDate ?? '',
       description: experience.description,
-      thumbnailUrl: experience.thumbnailUrl ?? '',
     });
   }
 
   startCreate(): void {
     this.editing.set({ id: 0, title: '', company: '', startDate: '', description: '', photos: [], createdAt: '' });
+    this.thumbnailUrl.set(null);
     this.photos.set([]);
-    this.form.reset();
-  }
-
-  cancelEdit(): void {
-    this.editing.set(null);
-    this.photos.set([]);
-    this.newPhotoUrl.set('');
     this.form.reset();
     this.error.set(null);
   }
 
-  addPhoto(): void {
-    const url = this.newPhotoUrl().trim();
-    if (!url) return;
-    this.photos.update((list) => [...list, url]);
-    this.newPhotoUrl.set('');
+  cancelEdit(): void {
+    this.editing.set(null);
+    this.thumbnailUrl.set(null);
+    this.photos.set([]);
+    this.error.set(null);
+    this.form.reset();
+  }
+
+  onThumbnailSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    if (!file) return;
+    this.thumbnailUploading.set(true);
+    this.uploadService.upload(file, 'experiences/thumbnails').subscribe({
+      next: ({ url }) => {
+        this.thumbnailUrl.set(url);
+        this.thumbnailUploading.set(false);
+      },
+      error: () => {
+        this.error.set("Erreur lors de l'upload de l'image de couverture.");
+        this.thumbnailUploading.set(false);
+      },
+    });
+  }
+
+  removeThumbnail(): void {
+    this.thumbnailUrl.set(null);
+  }
+
+  onPhotoSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const files = input.files;
+    if (!files || files.length === 0) return;
+    this.photoUploading.set(true);
+    let remaining = files.length;
+    for (let i = 0; i < files.length; i++) {
+      this.uploadService.upload(files[i], 'experiences/photos').subscribe({
+        next: ({ url }) => {
+          this.photos.update((list) => [...list, url]);
+          remaining--;
+          if (remaining === 0) this.photoUploading.set(false);
+        },
+        error: () => {
+          this.error.set("Erreur lors de l'upload d'une photo.");
+          remaining--;
+          if (remaining === 0) this.photoUploading.set(false);
+        },
+      });
+    }
+    input.value = '';
   }
 
   removePhoto(index: number): void {
     this.photos.update((list) => list.filter((_, i) => i !== index));
-  }
-
-  updateNewPhotoUrl(value: string): void {
-    this.newPhotoUrl.set(value);
   }
 
   onSubmit(): void {
@@ -102,7 +140,7 @@ export class AdminExperiencesComponent implements OnInit {
       startDate: raw.startDate ?? undefined,
       endDate: raw.endDate || undefined,
       description: raw.description ?? undefined,
-      thumbnailUrl: raw.thumbnailUrl || undefined,
+      thumbnailUrl: this.thumbnailUrl() ?? undefined,
       photos: this.photos(),
     };
 

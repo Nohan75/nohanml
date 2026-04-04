@@ -9,7 +9,7 @@
   @if (editing()) {
     <form [formGroup]="form" (ngSubmit)="onSubmit()" novalidate class="admin-form">
       <h2 class="admin-form__subtitle">
-        {{ editing()!.id ? 'Modifier l\'expérience' : 'Nouvelle expérience' }}
+        {{ editing()!.id ? "Modifier l'expérience" : 'Nouvelle expérience' }}
       </h2>
 
       <div class="form-row">
@@ -41,43 +41,74 @@
 
       <div class="form-field">
         <label for="description">Description</label>
-        <textarea id="description" formControlName="description" rows="5" placeholder="Décrivez vos missions et responsabilités..."></textarea>
+        <textarea id="description" formControlName="description" rows="5" placeholder="Décrivez vos missions..."></textarea>
       </div>
 
+      <!-- Image de couverture -->
       <div class="form-field">
-        <label for="thumbnailUrl">Image de couverture (URL)</label>
-        <input id="thumbnailUrl" type="url" formControlName="thumbnailUrl" placeholder="https://..." />
+        <label>Image de couverture</label>
+        @if (thumbnailUrl()) {
+          <div class="upload-preview">
+            <img [src]="thumbnailUrl()!" alt="Aperçu couverture" class="upload-preview__img" />
+            <button type="button" class="upload-preview__remove" (click)="removeThumbnail()" aria-label="Supprimer l'image">✕</button>
+          </div>
+        } @else {
+          <label class="upload-zone" [class.upload-zone--loading]="thumbnailUploading()">
+            @if (thumbnailUploading()) {
+              <span class="upload-zone__spinner">⏳ Upload en cours...</span>
+            } @else {
+              <span class="upload-zone__icon">🖼️</span>
+              <span class="upload-zone__text">Cliquer pour choisir une image</span>
+              <span class="upload-zone__hint">JPEG, PNG, WebP — max 5 Mo</span>
+            }
+            <input
+              type="file"
+              accept="image/jpeg,image/png,image/webp"
+              (change)="onThumbnailSelected($event)"
+              class="upload-zone__input"
+              [disabled]="thumbnailUploading()"
+            />
+          </label>
+        }
       </div>
 
-      <!-- Photos -->
+      <!-- Photos du détail -->
       <div class="form-field">
-        <label>Photos <span class="hint">(URLs des photos du détail)</span></label>
+        <label>Photos <span class="hint">(visibles dans la page de détail)</span></label>
 
-        <div class="photos-list">
-          @for (photo of photos(); track photo; let i = $index) {
-            <div class="photos-list__item">
-              <img [src]="photo" [alt]="'Photo ' + (i + 1)" class="photos-list__preview" />
-              <span class="photos-list__url">{{ photo }}</span>
-              <button
-                type="button"
-                class="btn-icon btn-icon--danger"
-                (click)="removePhoto(i)"
-                [attr.aria-label]="'Supprimer la photo ' + (i + 1)"
-              >🗑️</button>
-            </div>
+        @if (photos().length > 0) {
+          <div class="photos-grid">
+            @for (photo of photos(); track photo; let i = $index) {
+              <div class="photos-grid__item">
+                <img [src]="photo" [alt]="'Photo ' + (i + 1)" />
+                <button
+                  type="button"
+                  class="photos-grid__remove"
+                  (click)="removePhoto(i)"
+                  [attr.aria-label]="'Supprimer la photo ' + (i + 1)"
+                >✕</button>
+              </div>
+            }
+          </div>
+        }
+
+        <label class="upload-zone upload-zone--small" [class.upload-zone--loading]="photoUploading()">
+          @if (photoUploading()) {
+            <span class="upload-zone__spinner">⏳ Upload en cours...</span>
+          } @else {
+            <span class="upload-zone__icon">📷</span>
+            <span class="upload-zone__text">Ajouter des photos</span>
+            <span class="upload-zone__hint">Sélection multiple possible</span>
           }
-        </div>
-
-        <div class="photos-add">
           <input
-            type="url"
-            [value]="newPhotoUrl()"
-            (input)="updateNewPhotoUrl($any($event.target).value)"
-            placeholder="https://... URL d'une photo"
-            class="photos-add__input"
+            type="file"
+            accept="image/jpeg,image/png,image/webp,image/gif"
+            multiple
+            (change)="onPhotoSelected($event)"
+            class="upload-zone__input"
+            [disabled]="photoUploading()"
           />
-          <button type="button" class="btn-outline" (click)="addPhoto()">+ Ajouter</button>
-        </div>
+        </label>
       </div>
 
       @if (error()) {
@@ -86,7 +117,11 @@
 
       <div class="admin-form__actions">
         <button type="button" class="btn-outline" (click)="cancelEdit()">Annuler</button>
-        <button type="submit" class="btn-primary" [disabled]="form.invalid || saving()">
+        <button
+          type="submit"
+          class="btn-primary"
+          [disabled]="form.invalid || saving() || thumbnailUploading() || photoUploading()"
+        >
           {{ saving() ? 'Sauvegarde...' : 'Sauvegarder' }}
         </button>
       </div>
