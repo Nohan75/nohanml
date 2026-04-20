@@ -9,6 +9,7 @@
   color: inherit;
   transition: border-color 0.2s, transform 0.2s;
   cursor: pointer;
+  height: 100%;
 
   &:hover {
     border-color: var(--color-primary);
