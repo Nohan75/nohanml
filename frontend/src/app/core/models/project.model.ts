@@ -3,8 +3,8 @@ export interface Project {
   title: string;
   description: string;
   stack: string[];
-  githubUrl?: string;
-  liveUrl?: string;
-  imageUrl?: string;
+  githubUrl?: string | null;
+  liveUrl?: string | null;
+  imageUrl?: string | null;
   createdAt: string;
 }

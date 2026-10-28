@@ -2,11 +2,11 @@ export interface Experience {
   id: number;
   title: string;
   company: string;
-  location?: string;
+  location?: string | null;
   startDate: string;
-  endDate?: string;
+  endDate?: string | null;
   description: string;
-  thumbnailUrl?: string;
+  thumbnailUrl?: string | null;
   photos: string[];
   createdAt: string;
 }

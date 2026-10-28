@@ -130,6 +130,10 @@
     </form>
   }
 
+  @if (deleteError()) {
+    <p class="admin-list-error" role="alert">{{ deleteError() }}</p>
+  }
+
   @if (loading()) {
     <p class="loading" aria-live="polite">Chargement...</p>
   } @else if (experiences().length === 0 && !editing()) {

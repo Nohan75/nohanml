@@ -170,3 +170,27 @@ expect((fixture.nativeElement as HTMLElement).textContent).toContain('Dev Angula
 ```
 
 `provideRouter([])` is needed whenever the template uses `routerLink`.
+
+### Admin screen: component with real store and service
+
+For a screen under `features/admin/` (list plus form), test the component with its real root store and service over a fake HTTP layer (see `features/admin/projects/admin-projects.component.spec.ts`):
+
+```ts
+TestBed.configureTestingModule({
+  imports: [AdminProjectsComponent],
+  providers: [provideHttpClient(), provideHttpClientTesting()],   // no authInterceptor: the service specs cover the token
+});
+http = TestBed.inject(HttpTestingController);
+fixture = TestBed.createComponent(AdminProjectsComponent);
+fixture.detectChanges();                                          // ngOnInit loads the list
+http.expectOne(`${environment.apiUrl}/projects`).flush([project]);
+await fixture.whenStable();                                       // store load is a promise
+fixture.detectChanges();                                          // OnPush: render after each step
+```
+
+- `afterEach(() => http.verify())`: it fails on any request left open, so a stray `PATCH` or reload `GET` is caught.
+- Drive through the DOM: buttons by text or `aria-label`, `input.value = …` then `input.dispatchEvent(new Event('input'))`, `form.dispatchEvent(new Event('submit'))`, and `fixture.detectChanges()` after each step.
+- Assert on the request: `http.expectOne(url)`, then `req.request.method` and `req.request.body`. After a successful write, flush the reload `GET` too.
+- Failures: `req.flush({ message: 'boom' }, { status: 500, statusText: 'Server Error' })`, then look for the `role="alert"` element.
+- Deletes: `spyOn(window, 'confirm').and.returnValue(true)`.
+- Fixtures: plain objects, not typed as the model, so a spec can use a field type the model does not allow yet.

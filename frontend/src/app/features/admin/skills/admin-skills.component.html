@@ -23,6 +23,9 @@
         <label for="order">Ordre</label>
         <input id="order" type="number" formControlName="order" />
       </div>
+      @if (error()) {
+        <p class="admin-form__error" role="alert">{{ error() }}</p>
+      }
       <div class="admin-form__actions">
         <button type="button" class="btn-outline" (click)="cancelEdit()">Annuler</button>
         <button type="submit" class="btn-primary" [disabled]="form.invalid || saving()">
@@ -30,6 +33,10 @@
         </button>
       </div>
     </form>
+  }
+
+  @if (deleteError()) {
+    <p class="admin-list-error" role="alert">{{ deleteError() }}</p>
   }
 
   @if (loading()) {

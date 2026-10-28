@@ -115,6 +115,22 @@ describe('ProfileModule routes', () => {
     });
   });
 
+  describe('null URLs', () => {
+    it('PATCH /api/v1/admin/profile with null URLs answers 200 and saves nulls', async () => {
+      const urls = { cvUrl: null, linkedinUrl: null, githubUrl: null };
+
+      await request(app.getHttpServer())
+        .patch('/api/v1/admin/profile')
+        .set(auth())
+        .send(urls)
+        .expect(200);
+
+      expect(repo.save).toHaveBeenCalledWith(
+        expect.objectContaining({ id: 1, ...urls }),
+      );
+    });
+  });
+
   describe('old write paths', () => {
     const oldPaths: [string, string, 'post' | 'patch', object][] = [
       ['POST', '/api/v1/profile', 'post', body],
