@@ -55,6 +55,12 @@
   &__error   { color: #f87171; font-size: 0.875rem; }
 }
 
+.admin-list-error {
+  color: #f87171;
+  font-size: 0.875rem;
+  margin-bottom: 1rem;
+}
+
 .form-field {
   display: flex;
   flex-direction: column;

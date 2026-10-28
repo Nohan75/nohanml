@@ -30,6 +30,7 @@ export class AdminExperiencesComponent implements OnInit {
   editing = signal<Experience | null>(null);
   saving = signal(false);
   error = signal<string | null>(null);
+  deleteError = signal<string | null>(null);
 
   thumbnailUrl = signal<string | null>(null);
   thumbnailUploading = signal(false);
@@ -51,6 +52,7 @@ export class AdminExperiencesComponent implements OnInit {
 
   startEdit(experience: Experience): void {
     this.editing.set(experience);
+    this.deleteError.set(null);
     this.thumbnailUrl.set(experience.thumbnailUrl ?? null);
     this.photos.set([...experience.photos]);
     this.form.patchValue({
@@ -69,6 +71,7 @@ export class AdminExperiencesComponent implements OnInit {
     this.photos.set([]);
     this.form.reset();
     this.error.set(null);
+    this.deleteError.set(null);
   }
 
   cancelEdit(): void {
@@ -137,11 +140,11 @@ export class AdminExperiencesComponent implements OnInit {
     const payload: Partial<Experience> = {
       title: raw.title ?? undefined,
       company: raw.company ?? undefined,
-      location: raw.location || undefined,
+      location: raw.location || null,
       startDate: raw.startDate ?? undefined,
-      endDate: raw.endDate || undefined,
+      endDate: raw.endDate || null,
       description: raw.description ?? undefined,
-      thumbnailUrl: this.thumbnailUrl() ?? undefined,
+      thumbnailUrl: this.thumbnailUrl(),
       photos: this.photos(),
     };
 
@@ -165,6 +168,10 @@ export class AdminExperiencesComponent implements OnInit {
 
   delete(id: number): void {
     if (!confirm('Supprimer cette expérience ?')) return;
-    this.service.delete(id).subscribe({ next: () => this.store.loadExperiences() });
+    this.deleteError.set(null);
+    this.service.delete(id).subscribe({
+      next: () => this.store.loadExperiences(),
+      error: () => this.deleteError.set('Erreur lors de la suppression.'),
+    });
   }
 }

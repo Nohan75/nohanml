@@ -22,6 +22,7 @@ export class AdminProjectsComponent implements OnInit {
   editing = signal<Project | null>(null);
   saving = signal(false);
   error = signal<string | null>(null);
+  deleteError = signal<string | null>(null);
 
   form = this.fb.group({
     title: ['', Validators.required],
@@ -36,37 +37,43 @@ export class AdminProjectsComponent implements OnInit {
 
   startEdit(project: Project): void {
     this.editing.set(project);
+    this.deleteError.set(null);
     this.form.patchValue({ ...project, stack: project.stack.join(', ') });
   }
 
-  cancelEdit(): void { this.editing.set(null); this.form.reset(); }
+  cancelEdit(): void { this.editing.set(null); this.error.set(null); this.form.reset(); }
 
   onSubmit(): void {
     if (this.form.invalid || this.saving()) return;
     this.saving.set(true);
+    this.error.set(null);
     const raw = this.form.getRawValue();
     const payload: Partial<Project> = {
       title:       raw.title       ?? undefined,
       description: raw.description ?? undefined,
       stack:       raw.stack ? raw.stack.split(',').map((s) => s.trim()).filter(Boolean) : [],
-      githubUrl:   raw.githubUrl   ?? undefined,
-      liveUrl:     raw.liveUrl     ?? undefined,
-      imageUrl:    raw.imageUrl    ?? undefined,
+      githubUrl:   raw.githubUrl   || null,
+      liveUrl:     raw.liveUrl     || null,
+      imageUrl:    raw.imageUrl    || null,
     };
     const current = this.editing();
 
-    const req$ = current
+    const req$ = current?.id
       ? this.service.update(current.id, payload)
       : this.service.create(payload);
 
     req$.subscribe({
       next: () => { this.saving.set(false); this.cancelEdit(); this.store.loadProjects(); },
-      error: () => { this.error.set('Erreur.'); this.saving.set(false); },
+      error: () => { this.error.set('Erreur lors de la sauvegarde.'); this.saving.set(false); },
     });
   }
 
   delete(id: number): void {
     if (!confirm('Supprimer ce projet ?')) return;
-    this.service.delete(id).subscribe({ next: () => this.store.loadProjects() });
+    this.deleteError.set(null);
+    this.service.delete(id).subscribe({
+      next: () => this.store.loadProjects(),
+      error: () => this.deleteError.set('Erreur lors de la suppression.'),
+    });
   }
 }

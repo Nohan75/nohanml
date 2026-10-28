@@ -54,9 +54,9 @@ export class AdminProfileComponent implements OnInit {
       email:        raw.email        ?? undefined,
       location:     raw.location     ?? undefined,
       available:    raw.available    ?? undefined,
-      cvUrl:        raw.cvUrl        ?? undefined,
-      linkedinUrl:  raw.linkedinUrl  ?? undefined,
-      githubUrl:    raw.githubUrl    ?? undefined,
+      cvUrl:        raw.cvUrl        || null,
+      linkedinUrl:  raw.linkedinUrl  || null,
+      githubUrl:    raw.githubUrl    || null,
     };
 
     this.profileService.patch(payload).subscribe({

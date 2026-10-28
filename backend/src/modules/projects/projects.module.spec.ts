@@ -118,6 +118,32 @@ describe('ProjectsModule admin routes', () => {
       );
     });
 
+    it('PATCH /api/v1/admin/projects/1 with null URLs answers 200 and saves nulls', async () => {
+      const urls = { githubUrl: null, liveUrl: null, imageUrl: null };
+
+      await request(app.getHttpServer())
+        .patch('/api/v1/admin/projects/1')
+        .set(auth())
+        .send(urls)
+        .expect(200);
+
+      expect(repo.save).toHaveBeenCalledWith(
+        expect.objectContaining({ id: 1, ...urls }),
+      );
+    });
+
+    it('POST /api/v1/admin/projects with null URLs answers 201 and saves nulls', async () => {
+      const urls = { githubUrl: null, liveUrl: null, imageUrl: null };
+
+      await request(app.getHttpServer())
+        .post('/api/v1/admin/projects')
+        .set(auth())
+        .send({ ...body, ...urls })
+        .expect(201);
+
+      expect(repo.save).toHaveBeenCalledWith(expect.objectContaining(urls));
+    });
+
     it('DELETE /api/v1/admin/projects/1 removes the project and answers 204', async () => {
       await request(app.getHttpServer())
         .delete('/api/v1/admin/projects/1')

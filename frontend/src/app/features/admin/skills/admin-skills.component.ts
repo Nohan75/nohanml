@@ -22,6 +22,8 @@ export class AdminSkillsComponent implements OnInit {
   loading = this.store.loading;
   editing = signal<Skill | null>(null);
   saving = signal(false);
+  error = signal<string | null>(null);
+  deleteError = signal<string | null>(null);
 
   form = this.fb.group({
     name: ['', Validators.required],
@@ -31,12 +33,17 @@ export class AdminSkillsComponent implements OnInit {
 
   ngOnInit(): void { this.store.loadSkills(); }
 
-  startEdit(skill: Skill): void { this.editing.set(skill); this.form.patchValue(skill); }
-  cancelEdit(): void { this.editing.set(null); this.form.reset({ order: 0 }); }
+  startEdit(skill: Skill): void {
+    this.editing.set(skill);
+    this.deleteError.set(null);
+    this.form.patchValue(skill);
+  }
+  cancelEdit(): void { this.editing.set(null); this.error.set(null); this.form.reset({ order: 0 }); }
 
   onSubmit(): void {
     if (this.form.invalid || this.saving()) return;
     this.saving.set(true);
+    this.error.set(null);
     const raw = this.form.getRawValue();
     const current = this.editing();
     const payload: Partial<Skill> = {
@@ -50,12 +57,16 @@ export class AdminSkillsComponent implements OnInit {
 
     req$.subscribe({
       next: () => { this.saving.set(false); this.cancelEdit(); this.store.loadSkills(); },
-      error: () => this.saving.set(false),
+      error: () => { this.error.set('Erreur lors de la sauvegarde.'); this.saving.set(false); },
     });
   }
 
   delete(id: number): void {
     if (!confirm('Supprimer cette compétence ?')) return;
-    this.service.delete(id).subscribe({ next: () => this.store.loadSkills() });
+    this.deleteError.set(null);
+    this.service.delete(id).subscribe({
+      next: () => this.store.loadSkills(),
+      error: () => this.deleteError.set('Erreur lors de la suppression.'),
+    });
   }
 }
