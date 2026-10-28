@@ -14,3 +14,12 @@ Rules for `/dev-workflow:ticket` and `/dev-workflow:parallel`, written by `/dev-
 - **Clone into worktrees**: `node_modules`.
 - **Add a dependency**: `yarn --cwd <frontend|backend> add <package>` (Yarn 1, one lock file per app).
 - **In parallel**: 3 tickets at most.
+
+## Working in this repo
+
+- **Database**: `backend/.env` may point at the production Supabase database, and TypeORM `synchronize` rewrites its schema whenever the backend starts outside production. Agents never start the backend or connect to the database; tests and builds are the verification.
+- **Skills** live in `.claude/skills/`. An agent without the Skill tool reads the file before starting:
+  - backend change (module, endpoint, entity, DTO, environment variable): `.claude/skills/api-resource/SKILL.md`;
+  - frontend change (page, admin screen, component, service, store, style): `.claude/skills/angular-feature/SKILL.md`;
+  - planning, writing or running tests: `.claude/skills/writing-tests/SKILL.md`;
+  - shipping to production: `/deploy`, run by the developer.
