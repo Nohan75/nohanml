@@ -8,6 +8,7 @@
   "scripts": {
     "build": "nest build",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
+    "seed": "ts-node src/seed/seed.ts",
     "start": "nest start",
     "start:dev": "NODE_OPTIONS='--dns-result-order=ipv4first' nest start --watch",
     "start:debug": "nest start --debug --watch",

@@ -16,7 +16,7 @@ disable-model-invocation: true
 ## 1. Before shipping
 
 - What ships is on `main`, and the checks from `AGENTS.md` pass for each app it touches.
-- Entity changes: production runs with TypeORM `synchronize` off, and its schema changes only when the developer starts the backend locally, since the local `backend/.env` points at the same database. Before deploying, confirm with the developer that the backend has been started locally on the code being shipped.
+- Entity changes: production runs with TypeORM `synchronize` off, and the developer's local backend uses the local Docker Postgres, so starting it locally no longer touches production. Until the migrations ticket (NML-91), the developer applies schema changes by hand in the Supabase SQL editor. Before deploying, confirm with the developer that the entity changes being shipped have been applied there.
 - New backend variables are set as Fly secrets (section 4) before the deploy that reads them.
 
 ## 2. Frontend
