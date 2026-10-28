@@ -14,7 +14,7 @@ disable-model-invocation: true
 ## 1. Before shipping
 
 - What ships is on `main`, and the checks from `AGENTS.md` pass for each app it touches.
-- Entity changes ship as migrations in `backend/src/migrations/`, in the same pull request as the code (`.claude/skills/api-resource/SKILL.md`, "Schema changes"). The release command applies them on deploy (section 3); nothing is applied by hand in the Supabase SQL editor. Before the first deploy with migrations, run the one-time bootstrap of section 5 ("First deploy with migrations").
+- Entity changes ship as migrations in `backend/src/migrations/`, in the same pull request as the code (`.claude/skills/api-resource/SKILL.md`, "Schema changes"). The release command applies them on deploy (section 3); nothing is applied by hand in the Supabase SQL editor.
 - New backend variables are set as Fly secrets (section 4) before the deploy that reads them.
 
 ## 2. Frontend
@@ -48,24 +48,3 @@ Backend settings live in Fly secrets; the frontend has none (`environment.prod.t
 
 - Applied migrations, `[X]` for each one: `fly ssh console -a nohanml-backend -C "sh -c 'cd /app && node node_modules/typeorm/cli.js migration:show -d dist/data-source.js'"`.
 - Drift between the entities and the production schema: `fly ssh console -a nohanml-backend -C "sh -c 'cd /app && node node_modules/typeorm/cli.js migration:generate /tmp/Check --check -d dist/data-source.js'"` prints "No changes in database schema were found" (the path argument is required but nothing is written). The pg `DeprecationWarning: Calling client.query() when the client is already executing a query` it prints is harmless. When it lists changes instead, production differs from the entities: open a ticket for a corrective migration, never fix it by hand.
-
-### First deploy with migrations (once)
-
-Production's tables were created by `synchronize`, before migrations existed, and it has no `migrations` table: a plain deploy would run `Init` and fail on `relation "skills" already exists`. Before that first deploy, the developer records `Init` as applied, in the Supabase SQL editor:
-
-```sql
-BEGIN;
-
-CREATE TABLE IF NOT EXISTS "migrations" ("id" SERIAL NOT NULL, "timestamp" bigint NOT NULL, "name" character varying NOT NULL, CONSTRAINT "PK_8c82d7f526340ab734260ea46be" PRIMARY KEY ("id"));
-
-INSERT INTO "migrations" ("timestamp", "name")
-SELECT 1793221933062, 'Init1793221933062'
-WHERE NOT EXISTS (
-  SELECT 1 FROM "migrations"
-  WHERE "timestamp" = 1793221933062 AND "name" = 'Init1793221933062'
-);
-
-COMMIT;
-```
-
-It can run twice without harm, and still works after a failed first deploy. Then `fly deploy backend` (the release command prints "No migrations are pending"), then the two checks above: `migration:show` prints `[X]` before `Init1793221933062`, and `--check` finds no changes.
