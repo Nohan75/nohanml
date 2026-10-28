@@ -21,11 +21,11 @@ disable-model-invocation: true
 
 ## 2. Frontend
 
-Vercel builds and deploys `frontend/` on every push to `main`: merging is shipping. Follow the deployment in the Vercel dashboard or with the Vercel MCP tools, then open the site.
+Vercel builds and deploys `frontend/` to production on every push to `main`: merging is shipping. Every other pushed branch gets a preview deployment, linked from its pull request. Follow the deployment in the Vercel dashboard or with the Vercel MCP tools, then open the site.
 
 ## 3. Backend
 
-Whether a push to `main` also deploys to Fly.io is unconfirmed. Before the first deploy from this skill, ask the developer, then replace this paragraph with the answer.
+Nothing deploys the backend automatically: a merge to `main` reaches Fly.io only when someone runs `fly deploy`. To see what is waiting, take the date of the latest release in `fly releases -a nohanml-backend` and list `git log --since=<that date> -- backend/`.
 
 1. `fly auth whoami`. When the session has expired, the developer runs `! fly auth login`.
 2. `fly deploy backend`, after the developer confirms.
