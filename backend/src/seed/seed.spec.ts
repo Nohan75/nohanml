@@ -2,6 +2,7 @@ import { NestFactory } from '@nestjs/core';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { plainToInstance } from 'class-transformer';
 import { validate } from 'class-validator';
+import { QueryFailedError } from 'typeorm';
 import { Experience } from '../modules/experiences/experience.entity';
 import { CreateExperienceDto } from '../modules/experiences/dto/experience.dto';
 import { Profile } from '../modules/profile/profile.entity';
@@ -206,6 +207,30 @@ describe('run', () => {
     expect(close).toHaveBeenCalledTimes(1);
     expect(process.exitCode).toBe(1);
     expect(errorSpy).toHaveBeenCalledWith(expect.anything(), failure);
+  });
+
+  it('names yarn --cwd backend migration:run, sets exit code 1 and closes the connection when the schema was never migrated', async () => {
+    const missingRelation = Object.assign(
+      new Error('relation "profile" does not exist'),
+      { code: '42P01' },
+    );
+    repos
+      .repoOf('profile')
+      .count.mockRejectedValue(
+        new QueryFailedError(
+          'SELECT COUNT(1) FROM "profile"',
+          [],
+          missingRelation,
+        ),
+      );
+    await run();
+    const printed = errorSpy.mock.calls
+      .flat()
+      .filter((arg): arg is string => typeof arg === 'string')
+      .join('\n');
+    expect(printed).toContain('yarn --cwd backend migration:run');
+    expect(process.exitCode).toBe(1);
+    expect(close).toHaveBeenCalledTimes(1);
   });
 
   it('opens no connection and sets exit code 1 when SSL is not off', async () => {
