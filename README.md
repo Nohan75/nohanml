@@ -7,7 +7,7 @@ Monorepo contenant le frontend Angular 21 et le backend NestJS 10 de mon portfol
 ```
 nohanml/
 ├── frontend/   # Angular 21 — déployé sur Vercel
-└── backend/    # NestJS 10 — déployé sur Railway
+└── backend/    # NestJS 10 — déployé sur Fly.io
 ```
 
 ## Tech stack
@@ -15,9 +15,9 @@ nohanml/
 | Couche | Technologies |
 |---|---|
 | **Frontend** | Angular 21, NgRx Signal Store, SCSS, standalone components, OnPush |
-| **Backend** | NestJS 10, TypeORM, PostgreSQL (Supabase), Nodemailer, JWT |
-| **Infra** | Vercel (frontend), Railway (backend), Supabase (BDD) |
-| **CI/CD** | GitHub Actions avec cache Yarn |
+| **Backend** | NestJS 10, TypeORM, PostgreSQL (Supabase), Resend, JWT |
+| **Infra** | Vercel (frontend), Fly.io (backend), Supabase (BDD) |
+| **CI** | GitHub Actions : lint, tests et build (frontend et backend), sans déploiement |
 
 ---
 
@@ -65,75 +65,69 @@ DATABASE_URL=postgresql://postgres:postgres@localhost:5432/nohanml
 # false désactive SSL (base locale) ; toute autre valeur ou l'absence de la variable garde SSL
 DATABASE_SSL=false
 
-# SMTP Hostinger (port 465, SSL)
-MAIL_USER=contact@tondomaine.com
-MAIL_PASS=ton-mot-de-passe-email-hostinger
-
-# CORS — origine autorisée (URL Vercel en production)
+# Facultatif en local (défaut : http://localhost:4200) ; en production, obligatoire : l'origine du frontend, sinon le navigateur bloque tous les appels à l'API
 CORS_ORIGIN=http://localhost:4200
-
-# Serveur
+# Facultatif : port du serveur (défaut dans le code)
 PORT=3000
+# `production` en prod (désactive la synchronisation du schéma TypeORM), `development` en local
 NODE_ENV=development
 
-# JWT — clé secrète longue et aléatoire
+# JWT : clé secrète longue et aléatoire
 JWT_SECRET=change-this-to-a-long-random-secret
 
 # Compte administrateur
 ADMIN_EMAIL=your@email.com
 ADMIN_PASSWORD=your-admin-password
+
+# Resend : clé API non vide, sinon le backend ne démarre pas (avec ce placeholder, seul /contact échoue)
+RESEND_API_KEY=re_xxxxxxxx
+# Facultatif : expéditeur du mail de contact (défaut dans le code)
+MAIL_FROM=contact@nohanml.com
+# Facultatif : destinataire de secours, utilisé seulement si aucun profil n'existe en base
+MAIL_TO=your@email.com
+
+# Supabase Storage : upload d'images. SUPABASE_URL (URL http(s)) et SUPABASE_SERVICE_ROLE_KEY non vides, sinon le backend ne démarre pas
+SUPABASE_URL=https://xxxx.supabase.co
+SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
+# Facultatif : nom du bucket (défaut dans le code)
+SUPABASE_STORAGE_BUCKET=portfolio
 ```
 
-> **Note Supabase** : en production sur Railway, utiliser l'URL du **Connection Pooler** (domaine `aws-0-*.pooler.supabase.com`) et non l'URL directe, afin d'éviter les erreurs `ENETUNREACH` liées à l'IPv6.
+> **Note Supabase** : en production sur Fly.io, utiliser l'URL du **Connection Pooler** (domaine `aws-1-eu-north-1.pooler.supabase.com`) et non l'URL directe.
 
 ---
 
 ## Modules backend
 
-| Module | Route | Description |
+Toutes les routes sont préfixées par `/api/v1`. Les routes `admin/...` exigent un JWT (`Authorization: Bearer`).
+
+| Module | Routes | Description |
 |---|---|---|
-| `health` | `GET /api/v1/health` | Healthcheck Railway |
-| `profile` | `GET /api/v1/profile` | Infos publiques du profil |
-| `projects` | `GET /api/v1/projects` | Liste des projets |
-| `skills` | `GET /api/v1/skills` | Liste des compétences |
-| `contact` | `POST /api/v1/contact` | Envoi de mail via SMTP Hostinger |
-| `auth` | `POST /api/v1/auth/login` | Authentification admin (JWT) |
-| `stats` | `GET /api/v1/stats` | Statistiques du portfolio (protégé JWT) |
+| `health` | `GET /health` | Healthcheck |
+| `profile` | `GET /profile`<br>`POST`, `PATCH /admin/profile` | Infos publiques du profil ; édition (admin) |
+| `projects` | `GET /projects`, `GET /projects/:id`<br>`POST /admin/projects`, `PATCH`, `DELETE /admin/projects/:id` | Projets ; gestion (admin) |
+| `skills` | `GET /skills`<br>`POST /admin/skills`, `PATCH`, `DELETE /admin/skills/:id` | Compétences ; gestion (admin) |
+| `experiences` | `GET /experiences`, `GET /experiences/:id`<br>`POST /admin/experiences`, `PATCH`, `DELETE /admin/experiences/:id` | Expériences ; gestion (admin) |
+| `contact` | `POST /contact` | Envoi de mail via Resend |
+| `auth` | `POST /auth/login` | Authentification admin (JWT) |
+| `stats` | `GET /admin/stats` | Statistiques du portfolio (admin) |
+| `upload` | `POST /admin/upload` | Upload d'image vers Supabase Storage (admin) |
 
 ---
 
 ## Déploiement
 
-### Frontend — Vercel
+Le détail des étapes (vérifications, déploiement, rollback, secrets) est dans [`.claude/skills/deploy/SKILL.md`](.claude/skills/deploy/SKILL.md).
 
-1. Importer le repo sur [vercel.com](https://vercel.com)
-2. Définir le **Root Directory** sur `frontend`
-3. Framework : **Angular**
-4. Le fichier `frontend/vercel.json` gère les rewrites SPA
-
-### Backend — Railway
-
-1. Créer un service depuis le repo GitHub
-2. Définir le **Root Directory** sur `backend`
-3. Railway utilise le `backend/Dockerfile` (build multi-stage, Node 20 Alpine)
-4. Ajouter les variables d'environnement dans Railway :
-
-```
-DATABASE_URL=<URL pooler Supabase>
-MAIL_USER=contact@tondomaine.com
-MAIL_PASS=<mot de passe email Hostinger>
-CORS_ORIGIN=https://<ton-projet>.vercel.app
-JWT_SECRET=<clé secrète>
-ADMIN_EMAIL=<ton email>
-ADMIN_PASSWORD=<ton mot de passe admin>
-NODE_ENV=production
-```
+- **Frontend (Vercel)** : déploiement en production à chaque push sur `main`, et un aperçu par branche. Le `frontend/vercel.json` gère les rewrites SPA.
+- **Backend (Fly.io)** : app `nohanml-backend` (`backend/fly.toml`, build via `backend/Dockerfile`). Aucun déploiement automatique : `fly deploy backend`, lancé à la main.
+- **Secrets** : les variables sont les noms de `backend/.env.example`, définies avec `fly secrets set`.
 
 ---
 
-## CI/CD
+## CI
 
-GitHub Actions déclenché sur chaque push sur `main` :
+GitHub Actions, sur chaque push et pull request vers `main` ou `develop`, filtrés par dossier :
 
-- Cache Yarn pour accélérer les builds
-- Vercel et Railway se déploient automatiquement depuis le repo GitHub
+- **Frontend** (`frontend/**`) : lint, tests Karma (ChromeHeadless), build de production.
+- **Backend** (`backend/**`) : lint, build, tests.
