@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { typeOrmOptions } from './database/typeorm.options';
 import { ProjectsModule } from './modules/projects/projects.module';
 import { SkillsModule } from './modules/skills/skills.module';
 import { ProfileModule } from './modules/profile/profile.module';
@@ -20,15 +21,7 @@ import { UploadModule } from './modules/upload/upload.module';
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
-      useFactory: (config: ConfigService) => ({
-        type: 'postgres',
-        url: config.get<string>('DATABASE_URL'),
-        autoLoadEntities: true,
-        synchronize: config.get<string>('NODE_ENV') !== 'production',
-        ssl: { rejectUnauthorized: false },
-        retryAttempts: 10,
-        retryDelay: 3000,
-      }),
+      useFactory: typeOrmOptions,
     }),
     ProjectsModule,
     SkillsModule,

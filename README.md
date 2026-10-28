@@ -29,7 +29,7 @@ nohanml/
 
 - Node.js ≥ 20
 - Yarn
-- Une base de données PostgreSQL (ou un projet Supabase)
+- Docker (pour la base PostgreSQL locale)
 
 ### Frontend
 
@@ -43,11 +43,12 @@ yarn start
 ### Backend
 
 ```bash
-cd backend
-yarn
-cp .env.example .env
-# Remplir .env avec les vraies valeurs
-yarn start:dev
+yarn --cwd backend
+cp backend/.env.example backend/.env
+# Remplir backend/.env avec les vraies valeurs
+docker compose -f backend/docker-compose.yml up -d
+yarn --cwd backend seed
+yarn --cwd backend start:dev
 # → http://localhost:3000/api/v1
 # → http://localhost:3000/api/docs  (Swagger, dev uniquement)
 ```
@@ -59,8 +60,10 @@ yarn start:dev
 Copier `backend/.env.example` et renseigner chaque variable :
 
 ```env
-# Base de données PostgreSQL (Supabase — utiliser l'URL du Connection Pooler)
-DATABASE_URL=postgresql://user:password@aws-0-region.pooler.supabase.com:5432/postgres
+# Base de données PostgreSQL (locale via Docker ; en production, l'URL du Connection Pooler Supabase)
+DATABASE_URL=postgresql://postgres:postgres@localhost:5432/nohanml
+# false désactive SSL (base locale) ; toute autre valeur ou l'absence de la variable garde SSL
+DATABASE_SSL=false
 
 # SMTP Hostinger (port 465, SSL)
 MAIL_USER=contact@tondomaine.com

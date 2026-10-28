@@ -12,7 +12,7 @@ Nohan's personal portfolio: a public site (home, projects, experiences, about, c
 |---|---|---|
 | Frontend | Angular 21 (standalone, signals, NgRx Signal Store), SCSS | Vercel |
 | Backend | NestJS 10, TypeORM, class-validator, Swagger | Fly.io, app `nohanml-backend`, region `cdg` |
-| Database | PostgreSQL | Supabase |
+| Database | PostgreSQL | Supabase in production; Docker Postgres locally |
 | Images | Supabase Storage, bucket `portfolio` | Supabase |
 | Contact email | Resend | |
 | Admin auth | email and password from env vars, exchanged for a 7-day JWT kept in `localStorage` | |
@@ -27,10 +27,13 @@ nohanml/
 ├── .github/workflows/        # CI per app, triggered by changes under its folder
 ├── backend/                  # NestJS API, global prefix /api/v1
 │   ├── Dockerfile, fly.toml
+│   ├── docker-compose.yml    # local Postgres (service `db`)
 │   ├── .env.example          # every variable the API reads
 │   └── src/
 │       ├── main.ts           # helmet, CORS, ValidationPipe, Swagger outside production
-│       ├── app.module.ts     # TypeORM config, module list
+│       ├── app.module.ts     # module list, TypeORM through database/typeorm.options.ts
+│       ├── database/         # TypeORM options (SSL, synchronize)
+│       ├── seed/             # `yarn seed`: sample content for an empty local database
 │       ├── common/           # JwtAuthGuard, AllExceptionsFilter, LoggingInterceptor
 │       └── modules/          # auth, contact, experiences, health, profile, projects, skills, stats, upload
 └── frontend/                 # Angular app
@@ -81,12 +84,12 @@ POST   /admin/skills   PATCH|DELETE /admin/skills/:id
 ## Local development
 
 - Frontend: `yarn --cwd frontend start`, served at `http://localhost:4200`, calling the API at `http://localhost:3000/api/v1`.
-- Backend: `yarn --cwd backend start:dev`, run by the developer only (see "Database").
+- Backend: `docker compose -f backend/docker-compose.yml up -d`, then `yarn --cwd backend seed` (inserts sample content into empty tables, refuses any database that isn't local), then `yarn --cwd backend start:dev`. Run by the developer only (see "Database").
 - CI and the Docker image use Node 20.
 
 ## Working in this repo
 
-- **Database**: `backend/.env` points at the production Supabase database (project `tkipivttkaemxubvacon`, the one Fly.io uses) with `NODE_ENV=development`, so TypeORM `synchronize` rewrites the production schema whenever the backend starts locally; production itself runs with `NODE_ENV=production` and never synchronizes. Agents never start the backend or connect to the database; tests and builds are the verification.
+- **Database**: the developer's `backend/.env` points at the local Docker Postgres (`.env.example` values, `DATABASE_SSL=false`), so a local start synchronizes only that database. Production (Supabase project `tkipivttkaemxubvacon`, used by Fly.io) runs with `NODE_ENV=production` and never synchronizes: until the migrations ticket (NML-91), entity changes reach production by hand, in the Supabase SQL editor. Agents never start the backend, run the seed or connect to a database; tests and builds are the verification.
 - **Skills** live in `.claude/skills/`. An agent without the Skill tool reads the file before starting:
   - backend change (module, endpoint, entity, DTO, environment variable): `.claude/skills/api-resource/SKILL.md`;
   - frontend change (page, admin screen, component, service, store, style): `.claude/skills/angular-feature/SKILL.md`;
