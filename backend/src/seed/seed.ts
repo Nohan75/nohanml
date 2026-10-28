@@ -1,7 +1,12 @@
 import { INestApplicationContext } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { DeepPartial, ObjectLiteral, Repository } from 'typeorm';
+import {
+  DeepPartial,
+  ObjectLiteral,
+  QueryFailedError,
+  Repository,
+} from 'typeorm';
 import { Experience } from '../modules/experiences/experience.entity';
 import { Profile } from '../modules/profile/profile.entity';
 import { Project } from '../modules/projects/project.entity';
@@ -75,6 +80,12 @@ export const assertLocalDatabase = (config: {
   }
 };
 
+// Postgres code 42P01 (undefined_table): the migrations never ran.
+const isMissingSchema = (error: unknown): error is QueryFailedError =>
+  error instanceof QueryFailedError &&
+  'code' in error.driverError &&
+  error.driverError.code === '42P01';
+
 export const run = async (): Promise<void> => {
   try {
     assertLocalDatabase({ get: (key) => process.env[key] });
@@ -85,7 +96,13 @@ export const run = async (): Promise<void> => {
       await app.close();
     }
   } catch (error) {
-    console.error('Seed failed:', error);
+    if (isMissingSchema(error)) {
+      console.error(
+        `Seed failed: ${error.message}. Build the schema first with yarn --cwd backend migration:run, with the same DATABASE_URL.`,
+      );
+    } else {
+      console.error('Seed failed:', error);
+    }
     process.exitCode = 1;
   }
 };

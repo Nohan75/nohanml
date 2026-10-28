@@ -26,13 +26,15 @@ nohanml/
 ├── .claude/skills/           # project skills (see "Skills" below)
 ├── .github/workflows/        # CI per app, triggered by changes under its folder
 ├── backend/                  # NestJS API, global prefix /api/v1
-│   ├── Dockerfile, fly.toml
+│   ├── Dockerfile, fly.toml  # fly.toml: the release command runs pending migrations on deploy
 │   ├── docker-compose.yml    # local Postgres (service `db`)
 │   ├── .env.example          # every variable the API reads
 │   └── src/
 │       ├── main.ts           # helmet, CORS, ValidationPipe, Swagger outside production
 │       ├── app.module.ts     # module list, TypeORM through database/typeorm.options.ts
-│       ├── database/         # TypeORM options (SSL, synchronize)
+│       ├── data-source.ts    # TypeORM CLI data source (migration:* scripts, release command)
+│       ├── database/         # TypeORM options (SSL, migrations), .env loader for the CLI
+│       ├── migrations/       # one migration per schema change, generated from the entities
 │       ├── seed/             # `yarn seed`: sample content for an empty local database
 │       ├── common/           # JwtAuthGuard, AllExceptionsFilter, LoggingInterceptor
 │       └── modules/          # auth, contact, experiences, health, profile, projects, skills, stats, upload
@@ -49,7 +51,7 @@ nohanml/
 
 ## Data model
 
-TypeORM entities are the source of truth for the schema (see "Database" below).
+TypeORM entities are the source of truth for the schema; the migrations in `backend/src/migrations/` carry each change to the databases (see "Database" below).
 
 | Entity | Table | Holds |
 |---|---|---|
@@ -84,12 +86,13 @@ POST   /admin/skills   PATCH|DELETE /admin/skills/:id
 ## Local development
 
 - Frontend: `yarn --cwd frontend start`, served at `http://localhost:4200`, calling the API at `http://localhost:3000/api/v1`.
-- Backend: `docker compose -f backend/docker-compose.yml up -d`, then `yarn --cwd backend seed` (inserts sample content into empty tables, refuses any database that isn't local), then `yarn --cwd backend start:dev`. Run by the developer only (see "Database").
+- Backend, run by the developer: these bare commands use `backend/.env` (`nohanml`); agents use the prefixed commands of "Database". `docker compose -f backend/docker-compose.yml up -d`, then `yarn --cwd backend migration:run` (builds the schema, then applies each new migration), then `yarn --cwd backend seed` (inserts sample content into empty tables, refuses any database that isn't local, and exits 1 naming `migration:run` when the schema is missing), then `yarn --cwd backend start:dev`.
+- A local database built before NML-91 (tables created by `synchronize`, no `migrations` table) makes `migration:run` fail with `relation "…" already exists`. Run by the developer only, same rule. Reset it, losing its local data: `docker compose -f backend/docker-compose.yml down -v`, `docker compose -f backend/docker-compose.yml up -d`, `yarn --cwd backend migration:run`, `yarn --cwd backend seed`. `down -v` deletes the whole `pgdata` volume, `nohanml` and every agent's scratch database included: agents never run it.
 - CI and the Docker image use Node 20.
 
 ## Working in this repo
 
-- **Database**: the developer's `backend/.env` points at the local Docker Postgres (`.env.example` values, `DATABASE_SSL=false`), so a local start synchronizes only that database. Production (Supabase project `tkipivttkaemxubvacon`, used by Fly.io) runs with `NODE_ENV=production` and never synchronizes: until the migrations ticket (NML-91), entity changes reach production by hand, in the Supabase SQL editor. Agents never start the backend, run the seed or connect to a database; tests and builds are the verification.
+- **Database**: TypeORM `synchronize` is off everywhere; the schema changes only through the migrations in `backend/src/migrations/` (scripts `migration:generate|run|revert|show`, data source `backend/src/data-source.ts`, see `.claude/skills/api-resource/SKILL.md`). The developer's `backend/.env` points at the local Docker Postgres (`.env.example` values, `DATABASE_SSL=false`). Production (Supabase project `tkipivttkaemxubvacon`, used by Fly.io) changes only through migrations, never by hand: the release command in `backend/fly.toml` applies the pending ones on each `fly deploy`. Agents never use the developer's `nohanml` database, nor production: `backend/.env` points at `nohanml` and `.worktreeinclude` copies it into every worktree, so a bare `migration:*`, `seed` or `start` command would hit the developer's tables. An agent that needs a database (start the backend, run or generate migrations, run the seed) works on its own scratch database, one per ticket, in the local Docker container, and writes `DATABASE_URL=postgresql://postgres:postgres@localhost:5432/nohanml_<ticket-id> DATABASE_SSL=false` before every such command (shell variables win over `backend/.env`): create it with `docker compose -f backend/docker-compose.yml exec -T db createdb -U postgres nohanml_<ticket-id>` (ticket ID lowercase with `_`, e.g. `nohanml_nml_123`), then `DATABASE_URL=postgresql://postgres:postgres@localhost:5432/nohanml_<ticket-id> DATABASE_SSL=false yarn --cwd backend migration:run`; seed with `DATABASE_URL=postgresql://postgres:postgres@localhost:5432/nohanml_<ticket-id> DATABASE_SSL=false yarn --cwd backend seed` and start with `DATABASE_URL=postgresql://postgres:postgres@localhost:5432/nohanml_<ticket-id> DATABASE_SSL=false yarn --cwd backend start:dev`; drop it when the ticket is done with `docker compose -f backend/docker-compose.yml exec -T db dropdb -U postgres --if-exists nohanml_<ticket-id>`.
 - **Skills** live in `.claude/skills/`. An agent without the Skill tool reads the file before starting:
   - backend change (module, endpoint, entity, DTO, environment variable): `.claude/skills/api-resource/SKILL.md`;
   - frontend change (page, admin screen, component, service, store, style): `.claude/skills/angular-feature/SKILL.md`;

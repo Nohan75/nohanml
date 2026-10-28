@@ -14,7 +14,7 @@ disable-model-invocation: true
 ## 1. Before shipping
 
 - What ships is on `main`, and the checks from `AGENTS.md` pass for each app it touches.
-- Entity changes: production runs with TypeORM `synchronize` off, and the developer's local backend uses the local Docker Postgres, so starting it locally no longer touches production. Until the migrations ticket (NML-91), the developer applies schema changes by hand in the Supabase SQL editor. Before deploying, confirm with the developer that the entity changes being shipped have been applied there.
+- Entity changes ship as migrations in `backend/src/migrations/`, in the same pull request as the code (`.claude/skills/api-resource/SKILL.md`, "Schema changes"). The release command applies them on deploy (section 3); nothing is applied by hand in the Supabase SQL editor. Before the first deploy with migrations, run the one-time bootstrap of section 5 ("First deploy with migrations").
 - New backend variables are set as Fly secrets (section 4) before the deploy that reads them.
 
 ## 2. Frontend
@@ -26,9 +26,12 @@ Vercel builds and deploys `frontend/` to production on every push to `main`: mer
 Nothing deploys the backend automatically: a merge to `main` reaches Fly.io only when someone runs `fly deploy`. To see what is waiting, take the date of the latest release in `fly releases -a nohanml-backend` and list `git log --since=<that date> -- backend/`.
 
 1. `fly auth whoami`. When the session has expired, the developer runs `! fly auth login`.
-2. `fly deploy backend`, after the developer confirms.
+2. `fly deploy backend`, after the developer confirms. Before the new machines start, Fly runs the release command of `backend/fly.toml` once, in the new image with the app's secrets: `node node_modules/typeorm/cli.js migration:run -d dist/data-source.js`. It applies the pending migrations in one transaction and prints "No migrations are pending" when there are none. It also logs every SQL query it runs: that is expected. When it fails ("Error during migration run:"), the transaction is rolled back, Fly cancels the deploy and the previous release keeps serving: read the error in the deploy output or `fly logs -a nohanml-backend`, fix it with a new migration, deploy again.
 3. `fly status -a nohanml-backend`, then `curl -fsS https://nohanml-backend.fly.dev/api/v1/health` returns `{"status":"ok",…}`. Machines stop when idle (`min_machines_running = 0`), so the first request can take a few seconds.
-4. Rollback: `fly releases -a nohanml-backend --image` lists previous images; `fly deploy backend --image <image>` puts one back.
+4. Rollback, in this order:
+   1. When the release to undo ran a migration whose schema change must go too, revert it first, after the developer confirms, from a started machine of that release (its image holds the migration's `down`; revert drops what `up` created, data included). One run reverts the latest migration: check which it is first with `fly ssh console -a nohanml-backend -C "sh -c 'cd /app && node node_modules/typeorm/cli.js migration:show -d dist/data-source.js'"`, and never revert `Init1793221933062` in production, its `down` drops every production table.
+      `fly ssh console -a nohanml-backend -C "sh -c 'cd /app && node node_modules/typeorm/cli.js migration:revert -d dist/data-source.js'"`
+   2. `fly releases -a nohanml-backend --image` lists previous images; `fly deploy backend --image <image>` puts one back. Its release command runs too, and prints "No migrations are pending". An image built before NML-91 has no `dist/data-source.js`, so the release command fails on it: deploy such an image from a checkout of its commit, whose `fly.toml` has no release command.
 
 ## 4. Secrets
 
@@ -38,3 +41,31 @@ Backend settings live in Fly secrets; the frontend has none (`environment.prod.t
 - The developer types the values: `! fly secrets set NAME=value -a nohanml-backend`. Setting a secret restarts the machines.
 - `CORS_ORIGIN` must equal the frontend's origin, or the browser blocks every API call.
 - Each variable also has a placeholder line in `backend/.env.example`.
+
+## 5. Checking the production schema
+
+`fly ssh console` may not start in `/app`, hence the `sh -c 'cd /app && …'`. Run `curl -fsS https://nohanml-backend.fly.dev/api/v1/health` first, so that a machine is started.
+
+- Applied migrations, `[X]` for each one: `fly ssh console -a nohanml-backend -C "sh -c 'cd /app && node node_modules/typeorm/cli.js migration:show -d dist/data-source.js'"`.
+- Drift between the entities and the production schema: `fly ssh console -a nohanml-backend -C "sh -c 'cd /app && node node_modules/typeorm/cli.js migration:generate /tmp/Check --check -d dist/data-source.js'"` prints "No changes in database schema were found" (the path argument is required but nothing is written). The pg `DeprecationWarning: Calling client.query() when the client is already executing a query` it prints is harmless. When it lists changes instead, production differs from the entities: open a ticket for a corrective migration, never fix it by hand.
+
+### First deploy with migrations (once)
+
+Production's tables were created by `synchronize`, before migrations existed, and it has no `migrations` table: a plain deploy would run `Init` and fail on `relation "skills" already exists`. Before that first deploy, the developer records `Init` as applied, in the Supabase SQL editor:
+
+```sql
+BEGIN;
+
+CREATE TABLE IF NOT EXISTS "migrations" ("id" SERIAL NOT NULL, "timestamp" bigint NOT NULL, "name" character varying NOT NULL, CONSTRAINT "PK_8c82d7f526340ab734260ea46be" PRIMARY KEY ("id"));
+
+INSERT INTO "migrations" ("timestamp", "name")
+SELECT 1793221933062, 'Init1793221933062'
+WHERE NOT EXISTS (
+  SELECT 1 FROM "migrations"
+  WHERE "timestamp" = 1793221933062 AND "name" = 'Init1793221933062'
+);
+
+COMMIT;
+```
+
+It can run twice without harm, and still works after a failed first deploy. Then `fly deploy backend` (the release command prints "No migrations are pending"), then the two checks above: `migration:show` prints `[X]` before `Init1793221933062`, and `--check` finds no changes.

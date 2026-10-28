@@ -47,10 +47,32 @@ yarn --cwd backend
 cp backend/.env.example backend/.env
 # Remplir backend/.env avec les vraies valeurs
 docker compose -f backend/docker-compose.yml up -d
+yarn --cwd backend migration:run
 yarn --cwd backend seed
 yarn --cwd backend start:dev
 # → http://localhost:3000/api/v1
 # → http://localhost:3000/api/docs  (Swagger, dev uniquement)
+```
+
+### Migrations
+
+Le schéma de la base n'est jamais synchronisé automatiquement : il évolue uniquement par les migrations TypeORM de `backend/src/migrations/`. Sans schéma, le seed s'arrête et indique `yarn --cwd backend migration:run`.
+
+```bash
+yarn --cwd backend migration:run                                    # applique les migrations en attente
+yarn --cwd backend migration:show                                   # liste les migrations, [X] = appliquée
+yarn --cwd backend migration:generate src/migrations/<Nom>          # génère une migration après un changement d'entité
+yarn --cwd backend migration:generate src/migrations/Check --check  # vérifie que la base correspond aux entités
+yarn --cwd backend migration:revert                                 # annule la dernière migration appliquée
+```
+
+Une base locale créée avant les migrations (tables créées par `synchronize`, sans table `migrations`) fait échouer `migration:run` (`relation "…" already exists`). La recréer, en perdant ses données locales :
+
+```bash
+docker compose -f backend/docker-compose.yml down -v
+docker compose -f backend/docker-compose.yml up -d
+yarn --cwd backend migration:run
+yarn --cwd backend seed
 ```
 
 ---
@@ -69,7 +91,7 @@ DATABASE_SSL=false
 CORS_ORIGIN=http://localhost:4200
 # Facultatif : port du serveur (défaut dans le code)
 PORT=3000
-# `production` en prod (désactive la synchronisation du schéma TypeORM), `development` en local
+# `production` en prod (masque Swagger et le détail des erreurs 500), `development` en local
 NODE_ENV=development
 
 # JWT : clé secrète longue et aléatoire
@@ -120,7 +142,7 @@ Toutes les routes sont préfixées par `/api/v1`. Les routes `admin/...` exigent
 Le détail des étapes (vérifications, déploiement, rollback, secrets) est dans [`.claude/skills/deploy/SKILL.md`](.claude/skills/deploy/SKILL.md).
 
 - **Frontend (Vercel)** : déploiement en production à chaque push sur `main`, et un aperçu par branche. Le `frontend/vercel.json` gère les rewrites SPA.
-- **Backend (Fly.io)** : app `nohanml-backend` (`backend/fly.toml`, build via `backend/Dockerfile`). Aucun déploiement automatique : `fly deploy backend`, lancé à la main.
+- **Backend (Fly.io)** : app `nohanml-backend` (`backend/fly.toml`, build via `backend/Dockerfile`). Aucun déploiement automatique : `fly deploy backend`, lancé à la main. Avant de démarrer les nouvelles machines, Fly applique les migrations en attente (`release_command` de `backend/fly.toml`) et annule le déploiement si elles échouent.
 - **Secrets** : les variables sont les noms de `backend/.env.example`, définies avec `fly secrets set`.
 
 ---
