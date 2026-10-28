@@ -88,7 +88,7 @@ POST   /skills     PATCH|DELETE /skills/:id
 
 ## Working in this repo
 
-- **Database**: `backend/.env` may point at the production Supabase database, and TypeORM `synchronize` rewrites its schema whenever the backend starts outside production. Agents never start the backend or connect to the database; tests and builds are the verification.
+- **Database**: `backend/.env` points at the production Supabase database (project `tkipivttkaemxubvacon`, the one Fly.io uses) with `NODE_ENV=development`, so TypeORM `synchronize` rewrites the production schema whenever the backend starts locally; production itself runs with `NODE_ENV=production` and never synchronizes. Agents never start the backend or connect to the database; tests and builds are the verification.
 - **Skills** live in `.claude/skills/`. An agent without the Skill tool reads the file before starting:
   - backend change (module, endpoint, entity, DTO, environment variable): `.claude/skills/api-resource/SKILL.md`;
   - frontend change (page, admin screen, component, service, store, style): `.claude/skills/angular-feature/SKILL.md`;

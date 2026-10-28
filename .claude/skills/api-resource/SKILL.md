@@ -42,10 +42,10 @@ Images are uploaded through the existing `POST admin/upload` (Supabase Storage);
 
 ## Schema changes
 
-There are no migrations. TypeORM `synchronize` runs whenever `NODE_ENV` isn't `production`, so a local backend start rewrites the schema of whatever database `backend/.env` points at, and that may be the production Supabase database. Production itself never synchronizes.
+There are no migrations. TypeORM `synchronize` runs whenever `NODE_ENV` isn't `production`, and the local `backend/.env` points at the production Supabase database. A local backend start therefore applies entity changes straight to production, before the code that uses them is deployed; production itself never synchronizes.
 
 - Agents verify through unit tests and `build`, never by starting the backend (`start`, `start:dev`, `start:debug`) or by anything else that connects to the database.
-- Prefer additive changes: a new nullable column, or one with a `default`. Renaming or removing a column, or narrowing its type, destroys data once synchronized: stop and ask the developer.
+- Prefer additive changes: a new nullable column, or one with a `default`, which the production code still running can ignore. Renaming or removing a column, or narrowing its type, destroys data and breaks production as soon as the backend starts locally: stop and ask the developer.
 - The hand-over lists every entity change; the developer applies it to the database.
 
 ## Configuration
