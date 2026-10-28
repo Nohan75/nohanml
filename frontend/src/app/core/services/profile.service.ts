@@ -13,6 +13,6 @@ export class ProfileService {
   }
 
   patch(payload: Partial<Profile>): Observable<Profile> {
-    return this.http.patch<Profile>(`${environment.apiUrl}/profile`, payload);
+    return this.http.patch<Profile>(`${environment.apiUrl}/admin/profile`, payload);
   }
 }

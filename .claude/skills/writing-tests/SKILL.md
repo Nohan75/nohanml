@@ -62,7 +62,57 @@ describe('ExperiencesService', () => {
 
 - DTO rules: `expect(await validate(plainToInstance(CreateXDto, body)))` with `validate` from `class-validator` and `plainToInstance` from `class-transformer`.
 - Guards: call `canActivate` with a fake `ExecutionContext` whose `switchToHttp().getRequest()` returns `{ headers: { authorization: 'Bearer …' } }`, and a real `new JwtService({ secret: 'test' })` to sign tokens.
-- Route-level tests (guard plus pipe plus controller over HTTP) need `supertest`, which isn't installed: ask the developer before adding it.
+- Route-level tests (guard plus pipe plus controller over HTTP): see the next section.
+
+### Route level: supertest
+
+Guard, pipes and controller over HTTP, around the real feature module (see `backend/src/modules/projects/projects.module.spec.ts`). Repeat from `main.ts` the `api/v1` prefix, the `ValidationPipe` options and `AllExceptionsFilter`:
+
+```ts
+import request = require('supertest');   // no esModuleInterop: a default import is undefined
+import { INestApplication, ValidationPipe } from '@nestjs/common';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import { JwtService } from '@nestjs/jwt';
+import { Test } from '@nestjs/testing';
+import { getRepositoryToken } from '@nestjs/typeorm';
+import { AllExceptionsFilter } from '../../common/filters/all-exceptions.filter';
+import { Project } from './project.entity';
+import { ProjectsModule } from './projects.module';
+
+let app: INestApplication;
+const repo = { find: jest.fn(), findOneBy: jest.fn(), create: jest.fn(), save: jest.fn(), remove: jest.fn() };
+
+beforeAll(async () => {
+  const moduleRef = await Test.createTestingModule({
+    imports: [ConfigModule.forRoot({ isGlobal: true, ignoreEnvFile: true }), ProjectsModule],
+  })
+    .overrideProvider(ConfigService)
+    .useValue({ get: jest.fn((key: string) => ({ JWT_SECRET: 'test' })[key]) })
+    .overrideProvider(getRepositoryToken(Project))
+    .useValue(repo)
+    .compile();
+  app = moduleRef.createNestApplication();
+  app.setGlobalPrefix('api/v1');
+  app.useGlobalPipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true, transform: true }));
+  app.useGlobalFilters(new AllExceptionsFilter());
+  await app.init();
+});
+
+afterAll(() => app.close());
+
+it('answers 401 without a token', () =>
+  request(app.getHttpServer()).post('/api/v1/admin/projects').send({}).expect(401));
+
+it('accepts an admin token', () => {
+  repo.findOneBy.mockResolvedValue({ id: 1 });
+  repo.remove.mockResolvedValue(undefined);
+  const token = new JwtService({ secret: 'test' }).sign({ sub: 'admin' });
+  return request(app.getHttpServer()).delete('/api/v1/admin/projects/1').set('Authorization', `Bearer ${token}`).expect(204);
+});
+```
+
+- Override `ConfigService` and `getRepositoryToken(<Entity>)`, and set `ignoreEnvFile`: neither `backend/.env` nor a shell variable may reach the test, and the database is never opened.
+- Inline the helpers in each spec: a non-spec file under `src/` is compiled into `dist`, and a `*.spec.ts` helper runs as an empty suite.
 
 ## Frontend: Jasmine and Karma
 

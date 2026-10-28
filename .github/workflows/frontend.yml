@@ -30,6 +30,10 @@ jobs:
         working-directory: frontend
         run: npx ng lint
 
+      - name: Test
+        working-directory: frontend
+        run: yarn test --watch=false --browsers=ChromeHeadless
+
       - name: Build production
         working-directory: frontend
         run: npx ng build --configuration production

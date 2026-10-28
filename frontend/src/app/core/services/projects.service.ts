@@ -17,14 +17,14 @@ export class ProjectsService {
   }
 
   create(payload: Partial<Project>): Observable<Project> {
-    return this.http.post<Project>(`${environment.apiUrl}/projects`, payload);
+    return this.http.post<Project>(`${environment.apiUrl}/admin/projects`, payload);
   }
 
   update(id: number, payload: Partial<Project>): Observable<Project> {
-    return this.http.patch<Project>(`${environment.apiUrl}/projects/${id}`, payload);
+    return this.http.patch<Project>(`${environment.apiUrl}/admin/projects/${id}`, payload);
   }
 
   delete(id: number): Observable<void> {
-    return this.http.delete<void>(`${environment.apiUrl}/projects/${id}`);
+    return this.http.delete<void>(`${environment.apiUrl}/admin/projects/${id}`);
   }
 }
