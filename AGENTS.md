@@ -73,11 +73,9 @@ POST   /auth/login                    → { access_token }
 GET    /admin/stats
 POST   /admin/upload                  → image to Supabase Storage, returns { url }
 POST   /admin/experiences   PATCH|DELETE /admin/experiences/:id
-
-# Writes still outside admin/ and unguarded, until NML-86
-POST|PATCH /profile
-POST   /projects   PATCH|DELETE /projects/:id
-POST   /skills     PATCH|DELETE /skills/:id
+POST|PATCH /admin/profile
+POST   /admin/projects   PATCH|DELETE /admin/projects/:id
+POST   /admin/skills   PATCH|DELETE /admin/skills/:id
 ```
 
 ## Local development
@@ -107,7 +105,7 @@ Rules for `/dev-workflow:ticket` and `/dev-workflow:parallel`, written by `/dev-
 - **Pull requests**: against `main`, body written with the `mattpocock-skills:pr` skill; pushed and opened only when the developer asks.
 - **Checks**: before handing over, for each app the change touches (as CI does):
   - backend: `yarn --cwd backend lint && yarn --cwd backend build && yarn --cwd backend test` (`lint` runs with `--fix` and may rewrite files);
-  - frontend: `yarn --cwd frontend lint && yarn --cwd frontend build:prod`, plus `yarn --cwd frontend test --watch=false --browsers=ChromeHeadless` once spec files exist.
+  - frontend: `yarn --cwd frontend lint && yarn --cwd frontend build:prod && yarn --cwd frontend test --watch=false --browsers=ChromeHeadless`.
 - **Prepare a worktree**: nothing.
 - **Clone into worktrees**: `node_modules`.
 - **Add a dependency**: `yarn --cwd <frontend|backend> add <package>` (Yarn 1, one lock file per app).

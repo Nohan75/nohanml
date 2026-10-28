@@ -9,15 +9,17 @@ import {
   ParseIntPipe,
   Patch,
   Post,
+  UseGuards,
 } from '@nestjs/common';
-import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { ProjectsService } from './projects.service';
 import { CreateProjectDto, UpdateProjectDto } from './dto/project.dto';
 import { Project } from './project.entity';
+import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 
 @ApiTags('projects')
 @Controller('projects')
-export class ProjectsController {
+export class ProjectsPublicController {
   constructor(private readonly projectsService: ProjectsService) {}
 
   @Get()
@@ -31,15 +33,23 @@ export class ProjectsController {
   findOne(@Param('id', ParseIntPipe) id: number): Promise<Project> {
     return this.projectsService.findOne(id);
   }
+}
+
+@ApiTags('projects')
+@ApiBearerAuth()
+@UseGuards(JwtAuthGuard)
+@Controller('admin/projects')
+export class ProjectsAdminController {
+  constructor(private readonly projectsService: ProjectsService) {}
 
   @Post()
-  @ApiOperation({ summary: 'Create a project' })
+  @ApiOperation({ summary: 'Create a project (admin)' })
   create(@Body() dto: CreateProjectDto): Promise<Project> {
     return this.projectsService.create(dto);
   }
 
   @Patch(':id')
-  @ApiOperation({ summary: 'Update a project' })
+  @ApiOperation({ summary: 'Update a project (admin)' })
   update(
     @Param('id', ParseIntPipe) id: number,
     @Body() dto: UpdateProjectDto,
@@ -49,7 +59,7 @@ export class ProjectsController {
 
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
-  @ApiOperation({ summary: 'Delete a project' })
+  @ApiOperation({ summary: 'Delete a project (admin)' })
   remove(@Param('id', ParseIntPipe) id: number): Promise<void> {
     return this.projectsService.remove(id);
   }

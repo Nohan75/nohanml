@@ -5,7 +5,7 @@ description: Conventions for nohanml's NestJS API in `backend/`. Use when adding
 
 # API resource
 
-`backend/src/modules/experiences/` is the reference resource: copy its shape. The older `projects`, `skills` and `profile` modules predate it.
+`backend/src/modules/experiences/` is the reference resource: copy its shape.
 
 ## Shape
 
@@ -27,8 +27,6 @@ Register the module in `src/app.module.ts`; `autoLoadEntities` picks up the enti
 - The `admin/` prefix is load-bearing on both sides: the frontend `authInterceptor` attaches the token only to URLs containing `/admin`.
 - Every route has `@ApiTags` and `@ApiOperation({ summary })`; Swagger serves them at `/api/docs` outside production.
 - Ids go through `ParseIntPipe`; `DELETE` returns `@HttpCode(HttpStatus.NO_CONTENT)`.
-
-`projects`, `skills` and `profile` still expose unguarded writes outside `admin/`. Moving one is a ticket of its own: the backend route and the frontend service URL change together.
 
 ## DTOs
 
