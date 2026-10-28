@@ -16,7 +16,7 @@ disable-model-invocation: true
 ## 1. Before shipping
 
 - What ships is on `main`, and the checks from `AGENTS.md` pass for each app it touches.
-- Entity changes: production runs with TypeORM `synchronize` off, so the production schema must already match the entities. Ask the developer how each entity change was applied before deploying the backend.
+- Entity changes: production runs with TypeORM `synchronize` off, and its schema changes only when the developer starts the backend locally, since the local `backend/.env` points at the same database. Before deploying, confirm with the developer that the backend has been started locally on the code being shipped.
 - New backend variables are set as Fly secrets (section 4) before the deploy that reads them.
 
 ## 2. Frontend
