@@ -28,7 +28,7 @@ Every component is standalone, `ChangeDetectionStrategy.OnPush`, selector prefix
 
 ## Data flow
 
-- **Service**: `HttpClient` calls built on `environment.apiUrl`. Reads hit `/<plural>`, writes hit `/admin/<plural>`: the `authInterceptor` attaches the token only when the URL contains `/admin`.
+- **Service**: `HttpClient` calls built on `environment.apiUrl`. Reads hit `/<plural>`, writes hit `/admin/<plural>`: the `authInterceptor` attaches the token only when the URL contains `/admin`. A 401 from an `/admin` URL ends the session and redirects to `/admin/login?session=expired`, so admin screens do not handle 401 themselves.
 - **Model**: an interface in `core/models/` matching the entity's JSON, dates as `string`.
 - **Store**: copy `store/experiences.store.ts`: `signalStore({ providedIn: 'root' }, withState, withMethods)` holding the items, `loading` and `error`; methods load with `firstValueFrom` and `patchState`.
 - **Preloading**: public data loads behind the splash screen, so a new store's load call joins `AppLoadService.init()`; the page reloads only when the store is empty.

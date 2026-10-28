@@ -28,6 +28,10 @@
         />
       </div>
 
+      @if (sessionExpired()) {
+        <p class="login__notice" role="status">Session expirée, reconnecte-toi.</p>
+      }
+
       @if (error()) {
         <p class="login__error" role="alert">{{ error() }}</p>
       }
