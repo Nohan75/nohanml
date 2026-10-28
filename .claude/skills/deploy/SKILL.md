@@ -11,8 +11,6 @@ disable-model-invocation: true
 | backend | Fly.io app `nohanml-backend`, region `cdg`, built from `backend/Dockerfile` | `https://nohanml-backend.fly.dev/api/v1` |
 | frontend | Vercel, root directory `frontend`, settings in `frontend/vercel.json` | the Vercel project's domain |
 
-`README.md` and `backend/railway.toml` still describe the former Railway hosting; `backend/fly.toml` is the source of truth.
-
 ## 1. Before shipping
 
 - What ships is on `main`, and the checks from `AGENTS.md` pass for each app it touches.

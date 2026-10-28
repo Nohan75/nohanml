@@ -62,6 +62,7 @@ describe('ExperiencesService', () => {
 
 - DTO rules: `expect(await validate(plainToInstance(CreateXDto, body)))` with `validate` from `class-validator` and `plainToInstance` from `class-transformer`.
 - Guards: call `canActivate` with a fake `ExecutionContext` whose `switchToHttp().getRequest()` returns `{ headers: { authorization: 'Bearer …' } }`, and a real `new JwtService({ secret: 'test' })` to sign tokens.
+- A spec may read committed files such as `backend/.env.example` (see `backend/src/env-example.spec.ts`), never `.env`.
 - Route-level tests (guard plus pipe plus controller over HTTP): see the next section.
 
 ### Route level: supertest

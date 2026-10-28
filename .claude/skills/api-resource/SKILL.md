@@ -48,7 +48,7 @@ There are no migrations. TypeORM `synchronize` runs whenever `NODE_ENV` isn't `p
 
 ## Configuration
 
-Read settings with `ConfigService.get<string>('NAME')`. A new variable gets a placeholder line in `backend/.env.example`, and the hand-over names it so the developer sets it locally and as a Fly.io secret.
+Read settings with `ConfigService.get<string>('NAME')`. A new variable gets a placeholder line in `backend/.env.example`, and the hand-over names it so the developer sets it locally and as a Fly.io secret. The placeholder must be non-empty (a provider client throws on an empty key), and `backend/src/env-example.spec.ts` fails when the file and the variables the source reads differ.
 
 ## Done when
 
