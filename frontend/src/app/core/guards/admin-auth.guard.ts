@@ -1,12 +1,14 @@
 import { inject } from '@angular/core';
-import { CanActivateFn, Router } from '@angular/router';
+import { CanActivateChildFn, CanActivateFn, Router } from '@angular/router';
 import { AdminAuthService } from '../services/admin-auth.service';
 
-export const adminAuthGuard: CanActivateFn = () => {
+export const adminAuthGuard: CanActivateFn & CanActivateChildFn = () => {
   const authService = inject(AdminAuthService);
   const router = inject(Router);
 
-  if (authService.isAuthenticated()) return true;
+  if (authService.checkSession()) return true;
 
-  return router.parseUrl('/admin/login');
+  return router.parseUrl(
+    authService.sessionExpired() ? '/admin/login?session=expired' : '/admin/login',
+  );
 };

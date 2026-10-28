@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, input, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AdminAuthService } from '../../../core/services/admin-auth.service';
@@ -16,8 +16,13 @@ export class AdminLoginComponent {
   private authService = inject(AdminAuthService);
   private router = inject(Router);
 
+  session = input<string>();
+
   loading = signal(false);
   error = signal<string | null>(null);
+  private submitted = signal(false);
+
+  sessionExpired = computed(() => this.session() === 'expired' && !this.submitted());
 
   form = this.fb.group({
     email: ['', [Validators.required, Validators.email]],
@@ -28,6 +33,7 @@ export class AdminLoginComponent {
     if (this.form.invalid || this.loading()) return;
 
     this.loading.set(true);
+    this.submitted.set(true);
     this.error.set(null);
 
     const { email, password } = this.form.getRawValue();
